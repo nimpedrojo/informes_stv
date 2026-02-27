@@ -41,36 +41,81 @@
   </div>
 
   <div class="row mb-3">
-    <div class="col-md-4">
-      <label class="form-label">Club</label>
-      <input type="text" name="club" class="form-control" />
+    <div class="col-md-6">
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label">Club</label>
+          <input type="text" name="club" class="form-control" />
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label">Equipo</label>
+          <input type="text" name="team" class="form-control" />
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label">Contacto</label>
+          <input type="text" name="contact" class="form-control" />
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6">
+          <label class="form-label">Posición 1</label>
+          <input type="text" name="pos1" class="form-control" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Posición 2</label>
+          <input type="text" name="pos2" class="form-control" />
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6">
+          <label class="form-label">Posición 3</label>
+          <input type="text" name="pos3" class="form-control" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Posición 4</label>
+          <input type="text" name="pos4" class="form-control" />
+        </div>
+      </div>
+      <small class="text-muted"
+        >Usa los códigos de la leyenda (POR, LD, LI, DEF, MC, ID, II, MP, ED,
+        EI, DEL).</small
+      >
     </div>
-    <div class="col-md-4">
-      <label class="form-label">Equipo</label>
-      <input type="text" name="team" class="form-control" />
-    </div>
-    <div class="col-md-4">
-      <label class="form-label">Contacto</label>
-      <input type="text" name="contact" class="form-control" />
-    </div>
-  </div>
-
-  <div class="row mb-3">
-    <div class="col-md-3">
-      <label class="form-label">Posición 1</label>
-      <input type="text" name="pos1" class="form-control" />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Posición 2</label>
-      <input type="text" name="pos2" class="form-control" />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Posición 3</label>
-      <input type="text" name="pos3" class="form-control" />
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Posición 4</label>
-      <input type="text" name="pos4" class="form-control" />
+    <div class="col-md-6 d-flex align-items-center justify-content-center">
+      <div class="pitch-container mt-2">
+        <div class="pitch">
+          <div
+            class="pitch-position pos-por"
+            data-position-code="POR"
+          >
+            POR
+          </div>
+          <div
+            class="pitch-position pos-central"
+            data-position-code="DEF"
+          >
+            DEF
+          </div>
+          <div class="pitch-position pos-ld" data-position-code="LD">LD</div>
+          <div class="pitch-position pos-li" data-position-code="LI">LI</div>
+          <div class="pitch-position pos-mc" data-position-code="MC">MC</div>
+          <div class="pitch-position pos-id" data-position-code="ID">ID</div>
+          <div class="pitch-position pos-ii" data-position-code="II">II</div>
+          <div class="pitch-position pos-mp" data-position-code="MP">MP</div>
+          <div class="pitch-position pos-ed" data-position-code="ED">ED</div>
+          <div class="pitch-position pos-ei" data-position-code="EI">EI</div>
+          <div
+            class="pitch-position pos-del"
+            data-position-code="DEL"
+          >
+            DEL
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -603,6 +648,38 @@
         ],
         'pers_total',
       );
+
+      function updatePitch() {
+        const selectedCodes = [
+          document.querySelector('input[name="pos1"]'),
+          document.querySelector('input[name="pos2"]'),
+          document.querySelector('input[name="pos3"]'),
+          document.querySelector('input[name="pos4"]'),
+        ]
+          .filter(Boolean)
+          .map((el) => el.value.trim().toUpperCase())
+          .filter((v) => v);
+
+        document
+          .querySelectorAll('[data-position-code]')
+          .forEach((el) => {
+            const code = (el.dataset.positionCode || '').toUpperCase();
+            if (selectedCodes.includes(code)) {
+              el.classList.add('selected');
+            } else {
+              el.classList.remove('selected');
+            }
+          });
+      }
+
+      ['pos1', 'pos2', 'pos3', 'pos4'].forEach((name) => {
+        const el = document.querySelector(`input[name="${name}"]`);
+        if (el) {
+          el.addEventListener('input', updatePitch);
+        }
+      });
+
+      updatePitch();
     });
   })();
 </script>
