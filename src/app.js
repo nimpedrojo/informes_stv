@@ -6,7 +6,7 @@ const flash = require('connect-flash');
 const dotenv = require('dotenv');
 const expressLayouts = require('express-ejs-layouts');
 
-const { createUsersTable } = require('./models/userModel');
+const { createUsersTable, ensureAdminUser } = require('./models/userModel');
 const { createReportsTable } = require('./models/reportModel');
 
 dotenv.config();
@@ -58,6 +58,7 @@ app.get('/', (req, res) => {
 async function init() {
   await createUsersTable();
   await createReportsTable();
+  await ensureAdminUser();
 }
 
 init().catch((err) => {

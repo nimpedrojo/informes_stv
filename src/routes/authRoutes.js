@@ -40,6 +40,7 @@ router.post('/login', ensureGuest, async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
     };
     req.flash('success', 'Has iniciado sesión correctamente.');
     return res.redirect('/reports/new');
@@ -90,4 +91,3 @@ router.post('/logout', ensureAuth, (req, res) => {
 });
 
 module.exports = router;
-

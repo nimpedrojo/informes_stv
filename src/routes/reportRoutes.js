@@ -1,5 +1,11 @@
 const express = require('express');
-const { createReport } = require('../models/reportModel');
+const {
+  createReport,
+  getAllReports,
+  getReportById,
+  updateReport,
+  deleteReport,
+} = require('../models/reportModel');
 
 const router = express.Router();
 
@@ -7,6 +13,14 @@ function ensureAuth(req, res, next) {
   if (!req.session.user) {
     req.flash('error', 'Debes iniciar sesión.');
     return res.redirect('/login');
+  }
+  return next();
+}
+
+function ensureAdmin(req, res, next) {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    req.flash('error', 'No tienes permisos para acceder a esta sección.');
+    return res.redirect('/');
   }
   return next();
 }
@@ -64,7 +78,11 @@ router.post('/new', ensureAuth, async (req, res) => {
 
   try {
     // calcular medias de cada bloque a partir de sus sub-valores
-    const toNumber = (v) => (v === undefined || v === null || v === '' ? null : Number(v));
+    const toNumber = (v) => {
+      if (v === undefined || v === null || v === '') return null;
+      const n = Number(v);
+      return Number.isNaN(n) ? null : n;
+    };
 
     const techValues = [
       tech_cobertura_balon,
@@ -113,6 +131,15 @@ router.post('/new', ensureAuth, async (req, res) => {
     const psychTotal = avg(psychValues);
     const persTotal = avg(persValues);
 
+    const overallValues = [
+      techTotal,
+      tactTotal,
+      physTotal,
+      psychTotal,
+      persTotal,
+    ].filter((v) => v !== null);
+    const overallRating = avg(overallValues);
+
     if (!player_name || !player_surname) {
       return res.status(400).render('reports/new', {
         formData: req.body,
@@ -135,7 +162,7 @@ router.post('/new', ensureAuth, async (req, res) => {
       pos2,
       pos3,
       pos4,
-      overall_rating: overall_rating || null,
+      overall_rating: overallRating,
       comments,
       tech_total: techTotal,
       tact_total: tactTotal,
@@ -182,9 +209,113 @@ router.post('/new', ensureAuth, async (req, res) => {
     return res.redirect('/reports/new');
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error(err);
-    req.flash('error', 'Ha ocurrido un error al guardar el informe.');
+    console.error('Error al crear informe:', err);
+    req.flash('error', `Ha ocurrido un error al guardar el informe: ${err.message}`);
     return res.redirect('/reports/new');
+  }
+});
+
+// Listado de informes (solo admin)
+router.get('/', ensureAdmin, async (req, res) => {
+  try {
+    const reports = await getAllReports();
+    res.render('reports/list', { reports });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al obtener informes:', err);
+    req.flash('error', 'Ha ocurrido un error al cargar los informes.');
+    res.redirect('/');
+  }
+});
+
+// Detalle de informe (solo admin)
+router.get('/:id', ensureAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const report = await getReportById(id);
+    if (!report) {
+      req.flash('error', 'Informe no encontrado.');
+      return res.redirect('/reports');
+    }
+    return res.render('reports/detail', { report });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al obtener informe:', err);
+    req.flash('error', 'Ha ocurrido un error al cargar el informe.');
+    return res.redirect('/reports');
+  }
+});
+
+// Formulario de edición (solo admin)
+router.get('/:id/edit', ensureAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const report = await getReportById(id);
+    if (!report) {
+      req.flash('error', 'Informe no encontrado.');
+      return res.redirect('/reports');
+    }
+    return res.render('reports/edit', { report });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al cargar informe para edición:', err);
+    req.flash('error', 'Ha ocurrido un error al cargar el informe.');
+    return res.redirect('/reports');
+  }
+});
+
+// Guardar cambios de edición (solo admin)
+router.post('/:id/edit', ensureAdmin, async (req, res) => {
+  const { id } = req.params;
+  const data = {
+    player_name: req.body.player_name,
+    player_surname: req.body.player_surname,
+    year: req.body.year || null,
+    club: req.body.club,
+    team: req.body.team,
+    laterality: req.body.laterality,
+    contact: req.body.contact,
+    pos1: req.body.pos1,
+    pos2: req.body.pos2,
+    pos3: req.body.pos3,
+    pos4: req.body.pos4,
+    recommendation: req.body.recommendation,
+    info_reliability: req.body.info_reliability || null,
+    comments: req.body.comments,
+  };
+
+  try {
+    const affected = await updateReport(id, data);
+    if (!affected) {
+      req.flash('error', 'No se ha podido actualizar el informe.');
+    } else {
+      req.flash('success', 'Informe actualizado correctamente.');
+    }
+    return res.redirect(`/reports/${id}`);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al actualizar informe:', err);
+    req.flash('error', 'Ha ocurrido un error al actualizar el informe.');
+    return res.redirect(`/reports/${id}`);
+  }
+});
+
+// Borrado de informe (solo admin)
+router.post('/:id/delete', ensureAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const affected = await deleteReport(id);
+    if (!affected) {
+      req.flash('error', 'No se ha podido borrar el informe.');
+    } else {
+      req.flash('success', 'Informe borrado correctamente.');
+    }
+    return res.redirect('/reports');
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al borrar informe:', err);
+    req.flash('error', 'Ha ocurrido un error al borrar el informe.');
+    return res.redirect('/reports');
   }
 });
 

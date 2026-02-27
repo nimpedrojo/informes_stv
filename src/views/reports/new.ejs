@@ -529,6 +529,7 @@
       <input
         type="number"
         step="0.01"
+        readonly
         name="overall_rating"
         class="form-control"
       />
@@ -578,7 +579,7 @@
     function average(inputs) {
       const values = inputs
         .map((el) => toNumber(el.value))
-        .filter((v) => v !== null);
+        .filter((v) => v !== null && !Number.isNaN(v));
       if (!values.length) return '';
       const sum = values.reduce((a, b) => a + b, 0);
       return (sum / values.length).toFixed(2);
@@ -593,6 +594,8 @@
 
       function recalc() {
         totalInput.value = average(inputs);
+        const event = new Event('input', { bubbles: true });
+        totalInput.dispatchEvent(event);
       }
 
       inputs.forEach((input) => {
@@ -698,6 +701,53 @@
         yearEl.addEventListener('input', updateRecommendationOptions);
         updateRecommendationOptions();
       }
+
+      // Valoración global como media de los totales
+      function updateOverall() {
+        const techTotal = toNumber(
+          document.querySelector('input[name="tech_total"]')?.value,
+        );
+        const tactTotal = toNumber(
+          document.querySelector('input[name="tact_total"]')?.value,
+        );
+        const physTotal = toNumber(
+          document.querySelector('input[name="phys_total"]')?.value,
+        );
+        const psychTotal = toNumber(
+          document.querySelector('input[name="psych_total"]')?.value,
+        );
+        const persTotal = toNumber(
+          document.querySelector('input[name="pers_total"]')?.value,
+        );
+
+        const values = [
+          techTotal,
+          tactTotal,
+          physTotal,
+          psychTotal,
+          persTotal,
+        ].filter((v) => v !== null);
+
+        const overallInput = document.querySelector(
+          'input[name="overall_rating"]',
+        );
+        if (!overallInput) return;
+        if (!values.length) {
+          overallInput.value = '';
+          return;
+        }
+        const sum = values.reduce((a, b) => a + b, 0);
+        overallInput.value = (sum / values.length).toFixed(2);
+      }
+
+      ['tech_total', 'tact_total', 'phys_total', 'psych_total', 'pers_total']
+        .map((name) => document.querySelector(`input[name="${name}"]`))
+        .filter(Boolean)
+        .forEach((input) => {
+          input.addEventListener('input', updateOverall);
+        });
+
+      updateOverall();
 
       function updatePitch() {
         const selectedCodes = [

@@ -61,34 +61,34 @@ async function createReportsTable() {
 
   // Intentar añadir nuevas columnas si la tabla ya existía previamente
   const alterStatements = [
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_cobertura_balon DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_conduccion DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_control DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_regate DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_disparo DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_pase DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_remate_cabeza DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tech_anticipacion DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tact_transicion_ataque_defensa DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tact_movimientos_sin_balon DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tact_ayudas_defensivas DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tact_ayudas_ofensivas DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tact_desmarques DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS tact_marcajes DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_sacrificio DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_velocidad_punta DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_velocidad_reaccion DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_fuerza DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_potencia DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_resistencia DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS phys_coordinacion DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS psych_concentracion DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS psych_control_emocional DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS psych_reaccion_errores_arbitrales DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS pers_liderazgo DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS pers_disciplina DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS pers_reaccion_correcciones_companero DECIMAL(4,2)",
-    "ALTER TABLE reports ADD COLUMN IF NOT EXISTS pers_reaccion_correcciones_tecnico DECIMAL(4,2)",
+    'ALTER TABLE reports ADD COLUMN tech_cobertura_balon DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_conduccion DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_control DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_regate DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_disparo DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_pase DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_remate_cabeza DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tech_anticipacion DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tact_transicion_ataque_defensa DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tact_movimientos_sin_balon DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tact_ayudas_defensivas DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tact_ayudas_ofensivas DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tact_desmarques DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN tact_marcajes DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_sacrificio DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_velocidad_punta DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_velocidad_reaccion DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_fuerza DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_potencia DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_resistencia DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN phys_coordinacion DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN psych_concentracion DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN psych_control_emocional DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN psych_reaccion_errores_arbitrales DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN pers_liderazgo DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN pers_disciplina DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN pers_reaccion_correcciones_companero DECIMAL(4,2)',
+    'ALTER TABLE reports ADD COLUMN pers_reaccion_correcciones_tecnico DECIMAL(4,2)',
   ];
 
   // eslint-disable-next-line no-restricted-syntax
@@ -97,139 +97,67 @@ async function createReportsTable() {
       // eslint-disable-next-line no-await-in-loop
       await db.query(stmt);
     } catch (e) {
-      // ignoramos errores si la versión de MySQL no soporta IF NOT EXISTS
+      // ignore duplicate column errors if columns already exist
+      if (e && e.code !== 'ER_DUP_FIELDNAME') {
+        // eslint-disable-next-line no-console
+        console.error('Error altering reports table', e);
+      }
     }
   }
 }
 
 async function createReport(data) {
-  const {
-    player_name,
-    player_surname,
-    year,
-    club,
-    team,
-    laterality,
-    contact,
-    pos1,
-    pos2,
-    pos3,
-    pos4,
-    overall_rating,
-    comments,
-    tech_total,
-    tact_total,
-    phys_total,
-    psych_total,
-    pers_total,
-    tech_cobertura_balon,
-    tech_conduccion,
-    tech_control,
-    tech_regate,
-    tech_disparo,
-    tech_pase,
-    tech_remate_cabeza,
-    tech_anticipacion,
-    tact_transicion_ataque_defensa,
-    tact_movimientos_sin_balon,
-    tact_ayudas_defensivas,
-    tact_ayudas_ofensivas,
-    tact_desmarques,
-    tact_marcajes,
-    phys_sacrificio,
-    phys_velocidad_punta,
-    phys_velocidad_reaccion,
-    phys_fuerza,
-    phys_potencia,
-    phys_resistencia,
-    phys_coordinacion,
-    psych_concentracion,
-    psych_control_emocional,
-    psych_reaccion_errores_arbitrales,
-    pers_liderazgo,
-    pers_disciplina,
-    pers_reaccion_correcciones_companero,
-    pers_reaccion_correcciones_tecnico,
-    recommendation,
-    info_reliability,
-    created_by,
-  } = data;
-
-  const [result] = await db.query(
-    `INSERT INTO reports (
-      player_name, player_surname, year, club, team, laterality, contact,
-      pos1, pos2, pos3, pos4, overall_rating, comments,
-      tech_total, tact_total, phys_total, psych_total, pers_total,
-      tech_cobertura_balon, tech_conduccion, tech_control, tech_regate,
-      tech_disparo, tech_pase, tech_remate_cabeza, tech_anticipacion,
-      tact_transicion_ataque_defensa, tact_movimientos_sin_balon,
-      tact_ayudas_defensivas, tact_ayudas_ofensivas, tact_desmarques,
-      tact_marcajes,
-      phys_sacrificio, phys_velocidad_punta, phys_velocidad_reaccion,
-      phys_fuerza, phys_potencia, phys_resistencia, phys_coordinacion,
-      psych_concentracion, psych_control_emocional,
-      psych_reaccion_errores_arbitrales,
-      pers_liderazgo, pers_disciplina,
-      pers_reaccion_correcciones_companero,
-      pers_reaccion_correcciones_tecnico,
-      recommendation, info_reliability, created_by
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    [
-      player_name,
-      player_surname,
-      year,
-      club,
-      team,
-      laterality,
-      contact,
-      pos1,
-      pos2,
-      pos3,
-      pos4,
-      overall_rating,
-      comments,
-      tech_total,
-      tact_total,
-      phys_total,
-      psych_total,
-      pers_total,
-      tech_cobertura_balon,
-      tech_conduccion,
-      tech_control,
-      tech_regate,
-      tech_disparo,
-      tech_pase,
-      tech_remate_cabeza,
-      tech_anticipacion,
-      tact_transicion_ataque_defensa,
-      tact_movimientos_sin_balon,
-      tact_ayudas_defensivas,
-      tact_ayudas_ofensivas,
-      tact_desmarques,
-      tact_marcajes,
-      phys_sacrificio,
-      phys_velocidad_punta,
-      phys_velocidad_reaccion,
-      phys_fuerza,
-      phys_potencia,
-      phys_resistencia,
-      phys_coordinacion,
-      psych_concentracion,
-      psych_control_emocional,
-      psych_reaccion_errores_arbitrales,
-      pers_liderazgo,
-      pers_disciplina,
-      pers_reaccion_correcciones_companero,
-      pers_reaccion_correcciones_tecnico,
-      recommendation,
-      info_reliability,
-      created_by,
-    ],
-  );
+  const [result] = await db.query('INSERT INTO reports SET ?', [data]);
   return result.insertId;
+}
+
+async function getAllReports() {
+  const [rows] = await db.query(
+    `SELECT r.id,
+            r.player_name,
+            r.player_surname,
+            r.year,
+            r.club,
+            r.team,
+            r.overall_rating,
+            r.created_at,
+            u.name AS created_by_name
+       FROM reports r
+       LEFT JOIN users u ON r.created_by = u.id
+     ORDER BY r.created_at DESC`,
+  );
+  return rows;
+}
+
+async function getReportById(id) {
+  const [rows] = await db.query(
+    `SELECT r.*, u.name AS created_by_name, u.email AS created_by_email
+       FROM reports r
+       LEFT JOIN users u ON r.created_by = u.id
+      WHERE r.id = ?`,
+    [id],
+  );
+  return rows[0];
+}
+
+async function updateReport(id, data) {
+  const [result] = await db.query('UPDATE reports SET ? WHERE id = ?', [
+    data,
+    id,
+  ]);
+  return result.affectedRows;
+}
+
+async function deleteReport(id) {
+  const [result] = await db.query('DELETE FROM reports WHERE id = ?', [id]);
+  return result.affectedRows;
 }
 
 module.exports = {
   createReportsTable,
   createReport,
+  getAllReports,
+  getReportById,
+  updateReport,
+  deleteReport,
 };
