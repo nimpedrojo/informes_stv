@@ -40,15 +40,16 @@ async function findUserByEmail(email) {
 }
 
 async function ensureAdminUser() {
-  const adminEmail = 'admin@local';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@local';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
   const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [adminEmail]);
   if (rows.length === 0) {
     // eslint-disable-next-line no-console
-    console.log('Creando usuario admin por defecto (admin@local / admin)');
+    console.log(`Creando usuario admin por defecto (${adminEmail})`);
     await createUser({
       name: 'Administrador',
       email: adminEmail,
-      password: 'admin',
+      password: adminPassword,
       role: 'admin',
     });
   }

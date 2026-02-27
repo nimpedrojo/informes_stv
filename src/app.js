@@ -28,6 +28,12 @@ app.use(
     secret: process.env.SESSION_SECRET || 'session_secret_dev',
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 8, // 8 horas
+    },
   }),
 );
 app.use(flash());

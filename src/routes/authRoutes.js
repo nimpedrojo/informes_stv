@@ -67,6 +67,16 @@ router.post('/register', ensureGuest, async (req, res) => {
     return res.redirect('/register');
   }
 
+  if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+    req.flash('error', 'El email no tiene un formato válido.');
+    return res.redirect('/register');
+  }
+
+  if (password.length < 8) {
+    req.flash('error', 'La contraseña debe tener al menos 8 caracteres.');
+    return res.redirect('/register');
+  }
+
   try {
     const existing = await findUserByEmail(email);
     if (existing) {
