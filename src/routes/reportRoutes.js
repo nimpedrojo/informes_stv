@@ -210,8 +210,14 @@ router.post('/new', ensureAuth, async (req, res) => {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error al crear informe:', err);
-    req.flash('error', `Ha ocurrido un error al guardar el informe: ${err.message}`);
-    return res.redirect('/reports/new');
+    req.flash(
+      'error',
+      `Ha ocurrido un error al guardar el informe: ${err.message}`,
+    );
+    return res.status(500).render('reports/new', {
+      formData: req.body,
+      validationErrors: {},
+    });
   }
 });
 

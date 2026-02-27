@@ -8,7 +8,7 @@
         type="text"
         name="player_name"
         class="form-control <%= validationErrors.player_name ? 'is-invalid' : '' %>"
-        value="<%= formData.player_name || '' %>"
+        value="<%= (formData && formData.player_name) || '' %>"
         required
         aria-required="true"
       />
@@ -22,7 +22,7 @@
         type="text"
         name="player_surname"
         class="form-control <%= validationErrors.player_surname ? 'is-invalid' : '' %>"
-        value="<%= formData.player_surname || '' %>"
+        value="<%= (formData && formData.player_surname) || '' %>"
         required
         aria-required="true"
       />
@@ -32,11 +32,21 @@
     </div>
     <div class="col-md-2">
       <label class="form-label">Año</label>
-      <input type="number" name="year" class="form-control" />
+      <input
+        type="number"
+        name="year"
+        class="form-control"
+        value="<%= (formData && formData.year) || '' %>"
+      />
     </div>
     <div class="col-md-2">
       <label class="form-label">Lateralidad</label>
-      <input type="text" name="laterality" class="form-control" />
+      <input
+        type="text"
+        name="laterality"
+        class="form-control"
+        value="<%= (formData && formData.laterality) || '' %>"
+      />
     </div>
   </div>
 
@@ -45,39 +55,74 @@
       <div class="row mb-3">
         <div class="col-12">
           <label class="form-label">Club</label>
-          <input type="text" name="club" class="form-control" />
+          <input
+            type="text"
+            name="club"
+            class="form-control"
+            value="<%= (formData && formData.club) || '' %>"
+          />
         </div>
       </div>
       <div class="row mb-3">
         <div class="col-12">
           <label class="form-label">Equipo</label>
-          <input type="text" name="team" class="form-control" />
+          <input
+            type="text"
+            name="team"
+            class="form-control"
+            value="<%= (formData && formData.team) || '' %>"
+          />
         </div>
       </div>
       <div class="row mb-3">
         <div class="col-12">
           <label class="form-label">Contacto</label>
-          <input type="text" name="contact" class="form-control" />
+          <input
+            type="text"
+            name="contact"
+            class="form-control"
+            value="<%= (formData && formData.contact) || '' %>"
+          />
         </div>
       </div>
       <div class="row mb-2">
         <div class="col-md-6">
           <label class="form-label">Posición 1</label>
-          <input type="text" name="pos1" class="form-control" />
+          <input
+            type="text"
+            name="pos1"
+            class="form-control"
+            value="<%= (formData && formData.pos1) || '' %>"
+          />
         </div>
         <div class="col-md-6">
           <label class="form-label">Posición 2</label>
-          <input type="text" name="pos2" class="form-control" />
+          <input
+            type="text"
+            name="pos2"
+            class="form-control"
+            value="<%= (formData && formData.pos2) || '' %>"
+          />
         </div>
       </div>
       <div class="row mb-2">
         <div class="col-md-6">
           <label class="form-label">Posición 3</label>
-          <input type="text" name="pos3" class="form-control" />
+          <input
+            type="text"
+            name="pos3"
+            class="form-control"
+            value="<%= (formData && formData.pos3) || '' %>"
+          />
         </div>
         <div class="col-md-6">
           <label class="form-label">Posición 4</label>
-          <input type="text" name="pos4" class="form-control" />
+          <input
+            type="text"
+            name="pos4"
+            class="form-control"
+            value="<%= (formData && formData.pos4) || '' %>"
+          />
         </div>
       </div>
       <small class="text-muted"
@@ -132,6 +177,7 @@
                 step="0.01"
                 name="tech_cobertura_balon"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_cobertura_balon) || '' %>"
               />
             </div>
           </div>
@@ -143,6 +189,7 @@
                 step="0.01"
                 name="tech_conduccion"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_conduccion) || '' %>"
               />
             </div>
           </div>
@@ -154,6 +201,7 @@
                 step="0.01"
                 name="tech_control"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_control) || '' %>"
               />
             </div>
           </div>
@@ -165,6 +213,7 @@
                 step="0.01"
                 name="tech_regate"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_regate) || '' %>"
               />
             </div>
           </div>
@@ -176,6 +225,7 @@
                 step="0.01"
                 name="tech_disparo"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_disparo) || '' %>"
               />
             </div>
           </div>
@@ -187,6 +237,7 @@
                 step="0.01"
                 name="tech_pase"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_pase) || '' %>"
               />
             </div>
           </div>
@@ -198,6 +249,7 @@
                 step="0.01"
                 name="tech_remate_cabeza"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_remate_cabeza) || '' %>"
               />
             </div>
           </div>
@@ -209,6 +261,7 @@
                 step="0.01"
                 name="tech_anticipacion"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tech_anticipacion) || '' %>"
               />
             </div>
           </div>
@@ -238,6 +291,7 @@
                 step="0.01"
                 name="phys_sacrificio"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_sacrificio) || '' %>"
               />
             </div>
           </div>
@@ -249,6 +303,7 @@
                 step="0.01"
                 name="phys_velocidad_punta"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_velocidad_punta) || '' %>"
               />
             </div>
           </div>
@@ -260,6 +315,7 @@
                 step="0.01"
                 name="phys_velocidad_reaccion"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_velocidad_reaccion) || '' %>"
               />
             </div>
           </div>
@@ -271,6 +327,7 @@
                 step="0.01"
                 name="phys_fuerza"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_fuerza) || '' %>"
               />
             </div>
           </div>
@@ -282,6 +339,7 @@
                 step="0.01"
                 name="phys_potencia"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_potencia) || '' %>"
               />
             </div>
           </div>
@@ -293,6 +351,7 @@
                 step="0.01"
                 name="phys_resistencia"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_resistencia) || '' %>"
               />
             </div>
           </div>
@@ -304,6 +363,7 @@
                 step="0.01"
                 name="phys_coordinacion"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.phys_coordinacion) || '' %>"
               />
             </div>
           </div>
@@ -335,6 +395,7 @@
                 step="0.01"
                 name="tact_transicion_ataque_defensa"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tact_transicion_ataque_defensa) || '' %>"
               />
             </div>
           </div>
@@ -346,6 +407,7 @@
                 step="0.01"
                 name="tact_movimientos_sin_balon"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tact_movimientos_sin_balon) || '' %>"
               />
             </div>
           </div>
@@ -357,6 +419,7 @@
                 step="0.01"
                 name="tact_ayudas_defensivas"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tact_ayudas_defensivas) || '' %>"
               />
             </div>
           </div>
@@ -368,6 +431,7 @@
                 step="0.01"
                 name="tact_ayudas_ofensivas"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tact_ayudas_ofensivas) || '' %>"
               />
             </div>
           </div>
@@ -379,6 +443,7 @@
                 step="0.01"
                 name="tact_desmarques"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tact_desmarques) || '' %>"
               />
             </div>
           </div>
@@ -390,6 +455,7 @@
                 step="0.01"
                 name="tact_marcajes"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.tact_marcajes) || '' %>"
               />
             </div>
           </div>
@@ -419,6 +485,7 @@
                 step="0.01"
                 name="psych_concentracion"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.psych_concentracion) || '' %>"
               />
             </div>
           </div>
@@ -430,6 +497,7 @@
                 step="0.01"
                 name="psych_control_emocional"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.psych_control_emocional) || '' %>"
               />
             </div>
           </div>
@@ -441,6 +509,7 @@
                 step="0.01"
                 name="psych_reaccion_errores_arbitrales"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.psych_reaccion_errores_arbitrales) || '' %>"
               />
             </div>
           </div>
@@ -470,6 +539,7 @@
                 step="0.01"
                 name="pers_liderazgo"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.pers_liderazgo) || '' %>"
               />
             </div>
           </div>
@@ -481,6 +551,7 @@
                 step="0.01"
                 name="pers_disciplina"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.pers_disciplina) || '' %>"
               />
             </div>
           </div>
@@ -492,6 +563,7 @@
                 step="0.01"
                 name="pers_reaccion_correcciones_companero"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.pers_reaccion_correcciones_companero) || '' %>"
               />
             </div>
           </div>
@@ -503,6 +575,7 @@
                 step="0.01"
                 name="pers_reaccion_correcciones_tecnico"
                 class="form-control form-control-sm"
+                value="<%= (formData && formData.pers_reaccion_correcciones_tecnico) || '' %>"
               />
             </div>
           </div>
@@ -540,6 +613,7 @@
         name="recommendation"
         class="form-select"
         id="recommendation"
+        data-current-value="<%= (formData && formData.recommendation) || '' %>"
       >
         <option value="">Selecciona recomendación</option>
       </select>
@@ -551,6 +625,7 @@
         step="0.01"
         name="info_reliability"
         class="form-control"
+        value="<%= (formData && formData.info_reliability) || '' %>"
       />
     </div>
   </div>
@@ -562,7 +637,7 @@
       rows="4"
       class="form-control"
       placeholder="Comentarios del informe"
-    ></textarea>
+    ><%= (formData && formData.comments) || '' %></textarea>
   </div>
 
   <button type="submit" class="btn btn-success">Guardar informe</button>
@@ -681,15 +756,19 @@
 
         const year = parseInt(yearInput.value, 10);
         const options = recommendationByYear[year] || [];
+        const currentValue = select.dataset.currentValue || '';
 
         // reset opciones
         select.innerHTML =
-          '<option value=\"\">Selecciona recomendación</option>';
+          '<option value="">' + 'Selecciona recomendación' + '</option>';
 
         options.forEach((opt) => {
           const option = document.createElement('option');
           option.value = opt;
           option.textContent = opt;
+          if (opt === currentValue) {
+            option.selected = true;
+          }
           select.appendChild(option);
         });
 

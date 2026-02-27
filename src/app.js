@@ -6,9 +6,6 @@ const flash = require('connect-flash');
 const dotenv = require('dotenv');
 const expressLayouts = require('express-ejs-layouts');
 
-const { createUsersTable, ensureAdminUser } = require('./models/userModel');
-const { createReportsTable } = require('./models/reportModel');
-
 dotenv.config();
 
 const app = express();
@@ -59,17 +56,6 @@ app.get('/', (req, res) => {
     return res.redirect('/reports/new');
   }
   return res.redirect('/login');
-});
-
-async function init() {
-  await createUsersTable();
-  await createReportsTable();
-  await ensureAdminUser();
-}
-
-init().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error('Error initializing database tables', err);
 });
 
 module.exports = app;

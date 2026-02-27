@@ -26,7 +26,7 @@
         <td><%= r.year || '' %></td>
         <td><%= r.club || '' %></td>
         <td><%= r.team || '' %></td>
-        <td><%= r.overall_rating != null ? r.overall_rating.toFixed(2) : '' %></td>
+        <td><%= r.overall_rating != null ? Number(r.overall_rating).toFixed(2) : '' %></td>
         <td><%= r.created_by_name || '' %></td>
         <td><%= r.created_at.toISOString().slice(0, 10) %></td>
         <td class="text-nowrap">
