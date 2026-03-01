@@ -5,6 +5,7 @@ const XLSX = require('xlsx');
 const {
   createReport,
   getAllReports,
+  getAllReportsRaw,
   getReportById,
   updateReport,
   deleteReport,
@@ -263,6 +264,52 @@ router.get('/', ensureAdmin, async (req, res) => {
     console.error('Error al obtener informes:', err);
     req.flash('error', 'Ha ocurrido un error al cargar los informes.');
     res.redirect('/');
+  }
+});
+
+// Exportar informes a CSV (solo admin)
+router.get('/export/csv', ensureAdmin, async (req, res) => {
+  try {
+    const reports = await getAllReportsRaw();
+    if (!reports.length) {
+      req.flash('error', 'No hay informes para exportar.');
+      return res.redirect('/reports');
+    }
+
+    const columns = Object.keys(reports[0]);
+
+    const escapeCell = (value) => {
+      if (value === null || value === undefined) return '';
+      const str = String(value);
+      if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const lines = [];
+    lines.push(columns.join(','));
+    reports.forEach((row) => {
+      const line = columns.map((col) => escapeCell(row[col])).join(',');
+      lines.push(line);
+    });
+
+    const csv = `${lines.join('\n')}\n`;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="informes_stv.csv"',
+    );
+    return res.send(csv);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al exportar informes a CSV:', err);
+    req.flash(
+      'error',
+      'Ha ocurrido un error al exportar los informes a CSV.',
+    );
+    return res.redirect('/reports');
   }
 });
 

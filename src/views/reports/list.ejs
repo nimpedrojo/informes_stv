@@ -3,6 +3,11 @@
 <% if (!reports || !reports.length) { %>
 <p>No hay informes registrados.</p>
 <% } else { %>
+<div class="mb-3 d-flex justify-content-end">
+  <a href="/reports/export/csv" class="btn btn-outline-secondary btn-sm">
+    Exportar CSV
+  </a>
+</div>
 <form
   method="POST"
   action="/reports/bulk-delete"
