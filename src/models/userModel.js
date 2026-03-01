@@ -88,6 +88,10 @@ async function updateUserRole(id, role) {
 }
 
 async function deleteUser(id) {
+  // Desvincular informes del usuario antes de borrarlo para evitar errores de clave foránea
+  await db.query('UPDATE reports SET created_by = NULL WHERE created_by = ?', [
+    id,
+  ]);
   const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
   return result.affectedRows;
 }

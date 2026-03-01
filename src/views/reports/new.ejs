@@ -2,6 +2,32 @@
 
 <form method="POST" action="/reports/new">
   <div class="row mb-3">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Seleccionar jugador (opcional)</label>
+      <select id="playerSelect" class="form-select">
+        <option value="">-- Selecciona un jugador --</option>
+        <% if (typeof players !== 'undefined' && players && players.length) { %>
+          <% players.forEach(function (p) { %>
+            <option
+              value="<%= p.id %>"
+              data-first-name="<%= p.first_name %>"
+              data-last-name="<%= p.last_name %>"
+              data-team="<%= p.team || '' %>"
+              data-year="<%= p.birth_year || '' %>"
+              data-laterality="<%= p.laterality || '' %>"
+            >
+              <%= p.first_name %> <%= p.last_name %> (<%= p.team || 'Sin equipo' %>)
+            </option>
+          <% }) %>
+        <% } %>
+      </select>
+      <small class="text-muted">
+        Al seleccionar un jugador se rellenarán automáticamente nombre, apellidos, equipo, año y lateralidad.
+      </small>
+    </div>
+  </div>
+
+  <div class="row mb-3">
     <div class="col-md-4">
       <label class="form-label">Nombre <span class="text-danger">*</span></label>
       <input
@@ -595,6 +621,36 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var select = document.getElementById('playerSelect');
+      if (!select) return;
+
+      select.addEventListener('change', function () {
+        var opt = select.options[select.selectedIndex];
+        if (!opt || !opt.value) return;
+
+        var firstName = opt.getAttribute('data-first-name') || '';
+        var lastName = opt.getAttribute('data-last-name') || '';
+        var team = opt.getAttribute('data-team') || '';
+        var year = opt.getAttribute('data-year') || '';
+        var laterality = opt.getAttribute('data-laterality') || '';
+
+        var nameInput = document.querySelector('input[name=\"player_name\"]');
+        var surnameInput = document.querySelector('input[name=\"player_surname\"]');
+        var teamInput = document.querySelector('input[name=\"team\"]');
+        var yearInput = document.querySelector('input[name=\"year\"]');
+        var lateralityInput = document.querySelector('input[name=\"laterality\"]');
+
+        if (nameInput && !nameInput.value) nameInput.value = firstName;
+        if (surnameInput && !surnameInput.value) surnameInput.value = lastName;
+        if (teamInput) teamInput.value = team;
+        if (yearInput && !yearInput.value) yearInput.value = year;
+        if (lateralityInput && !lateralityInput.value) lateralityInput.value = laterality;
+      });
+    });
+  </script>
 
   <div class="row mb-3">
     <div class="col-md-3">

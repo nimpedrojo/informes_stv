@@ -10,7 +10,7 @@
     <thead>
       <tr>
         <th>
-          <!-- checkbox para seleccionar todos (opcionales, no imprescindible que tenga lógica JS avanzada) -->
+          <input type="checkbox" id="selectAllUsers" />
         </th>
         <th>ID</th>
         <th>Nombre</th>
@@ -29,6 +29,7 @@
           <% if (!currentUser || currentUser.id !== u.id) { %>
           <input
             type="checkbox"
+            class="user-select"
             name="userIds"
             value="<%= u.id %>"
           />
@@ -100,3 +101,16 @@
     </button>
   </div>
 </form>
+
+<script>
+  (function () {
+    var selectAll = document.getElementById('selectAllUsers');
+    if (!selectAll) return;
+    selectAll.addEventListener('change', function () {
+      var checks = document.querySelectorAll('input.user-select');
+      checks.forEach(function (c) {
+        c.checked = selectAll.checked;
+      });
+    });
+  })();
+</script>
