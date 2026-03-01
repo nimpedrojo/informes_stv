@@ -4,6 +4,9 @@
 
 <div class="mb-3">
   <a href="/reports" class="btn btn-secondary btn-sm">Volver al listado</a>
+  <a href="/reports/<%= report.id %>/excel" class="btn btn-success btn-sm ms-2">
+    Descargar Excel
+  </a>
 </div>
 
 <div class="row mb-3">
@@ -108,4 +111,3 @@
   <h5>Comentarios</h5>
   <p><%= report.comments || 'Sin comentarios.' %></p>
 </div>
-

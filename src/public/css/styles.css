@@ -111,3 +111,8 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.icon-dashboard {
+  max-height: 120px;
+  object-fit: contain;
+}
