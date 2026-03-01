@@ -2,6 +2,31 @@ const request = require('supertest');
 const app = require('../src/app');
 const db = require('../src/db');
 
+async function createTestUser({
+  name = 'Test User',
+  email,
+  password = 'password123',
+  role = 'user',
+  defaultClub = null,
+  defaultTeam = null,
+}) {
+  const userEmail =
+    email || `user_${Date.now()}_${Math.random().toString(16).slice(2)}@local`;
+  const [result] = await db.query(
+    'INSERT INTO users (name, email, password_hash, role, default_club, default_team) VALUES (?, ?, ?, ?, ?, ?)',
+    [
+      name,
+      userEmail,
+      // bcryptjs hash for 'password123' con salt 10 (precalculado para evitar coste en tests)
+      '$2b$10$dqViRKNFig.H8Ewz7IcQf.eiq..3sKjdfT9lsbHPq1xHSnzM6Sjsi',
+      role,
+      defaultClub,
+      defaultTeam,
+    ],
+  );
+  return { id: result.insertId, email: userEmail, password };
+}
+
 describe('Aplicación de informes STV', () => {
   afterAll(async () => {
     await db.end();
@@ -18,5 +43,208 @@ describe('Aplicación de informes STV', () => {
     expect(res.status).toBe(200);
     expect(res.text).toContain('Iniciar sesión');
   });
-});
 
+  test('un usuario no autenticado es redirigido si intenta ver /account', async () => {
+    const res = await request(app).get('/account');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/login');
+  });
+
+  test('un usuario autenticado puede ver su página de cuenta', async () => {
+    const { email } = await createTestUser({
+      name: 'Cuenta Tester',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/account');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Mi cuenta');
+    expect(res.text).toContain('Cuenta Tester');
+  });
+
+  test('un usuario puede actualizar sus valores por defecto en cuenta', async () => {
+    const { email } = await createTestUser({
+      name: 'Config Tester',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const resPost = await agent.post('/account').send({
+      name: 'Config Tester',
+      email,
+      default_club: 'Cuenta Club',
+      default_team: 'Cuenta Equipo',
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/account');
+
+    const resAccount = await agent.get('/account');
+    expect(resAccount.status).toBe(200);
+    expect(resAccount.text).toContain('Cuenta Club');
+    expect(resAccount.text).toContain('Cuenta Equipo');
+  });
+
+  test('los valores por defecto de club/equipo se usan al abrir nuevo informe', async () => {
+    const { email } = await createTestUser({
+      name: 'Defaults Tester',
+      role: 'user',
+      defaultClub: 'Club Test',
+      defaultTeam: 'Equipo Test',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/reports/new');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('value="Club Test"');
+    expect(res.text).toContain('value="Equipo Test"');
+  });
+
+  test('si el usuario rellena club/equipo se respetan sobre los valores por defecto', async () => {
+    const { email } = await createTestUser({
+      name: 'Override Tester',
+      role: 'user',
+      defaultClub: 'Club Default',
+      defaultTeam: 'Equipo Default',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const resPost = await agent.post('/reports/new').send({
+      player_name: 'Jugador',
+      player_surname: 'Prueba',
+      club: 'Club Manual',
+      team: 'Equipo Manual',
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/reports/new');
+
+    const [rows] = await db.query(
+      'SELECT club, team FROM reports ORDER BY id DESC LIMIT 1',
+    );
+    expect(rows[0].club).toBe('Club Manual');
+    expect(rows[0].team).toBe('Equipo Manual');
+  });
+
+  test('un admin puede ver la página de gestión de usuarios', async () => {
+    const { email } = await createTestUser({
+      name: 'Admin Tester',
+      role: 'admin',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/admin/users');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Gestión de usuarios');
+  });
+
+  test('un no admin no puede acceder a la gestión de usuarios', async () => {
+    const { email } = await createTestUser({
+      name: 'User Tester',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/admin/users');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/');
+  });
+
+  test('un admin puede editar datos básicos de un usuario', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Edit',
+      role: 'admin',
+    });
+    const user = await createTestUser({
+      name: 'User To Edit',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent.post(`/admin/users/${user.id}/edit`).send({
+      name: 'User Edited',
+      email: user.email,
+      default_club: 'Admin Club',
+      default_team: 'Admin Equipo',
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/admin/users');
+
+    const [rows] = await db.query(
+      'SELECT name, default_club, default_team FROM users WHERE id = ?',
+      [user.id],
+    );
+    expect(rows[0].name).toBe('User Edited');
+    expect(rows[0].default_club).toBe('Admin Club');
+    expect(rows[0].default_team).toBe('Admin Equipo');
+  });
+
+  test('un admin puede cambiar el rol de un usuario', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Role',
+      role: 'admin',
+    });
+    const user = await createTestUser({
+      name: 'User Role',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent
+      .post(`/admin/users/${user.id}/role`)
+      .send({ role: 'admin' });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/admin/users');
+
+    const [rows] = await db.query('SELECT role FROM users WHERE id = ?', [
+      user.id,
+    ]);
+    expect(rows[0].role).toBe('admin');
+  });
+
+  test('un admin puede borrar un usuario diferente a sí mismo', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Delete',
+      role: 'admin',
+    });
+    const user = await createTestUser({
+      name: 'User Delete',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent
+      .post(`/admin/users/${user.id}/delete`)
+      .send();
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/admin/users');
+
+    const [rows] = await db.query('SELECT id FROM users WHERE id = ?', [
+      user.id,
+    ]);
+    expect(rows.length).toBe(0);
+  });
+
+  test('la API de report devuelve 404 si el informe no existe', async () => {
+    const res = await request(app).get('/reports/api/999999');
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
+});

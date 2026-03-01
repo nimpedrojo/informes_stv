@@ -20,11 +20,12 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.19.0",
     "morgan": "^1.10.1",
-    "mysql2": "^3.18.2"
+    "mysql2": "^3.18.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
     "jest": "^29.7.0",
+    "nodemon": "^3.1.14",
     "supertest": "^6.3.4"
   }
 }

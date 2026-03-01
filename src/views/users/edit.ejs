@@ -1,0 +1,57 @@
+<h1 class="mb-4">Editar usuario</h1>
+
+<form method="POST" action="/admin/users/<%= user.id %>/edit" class="col-md-6">
+  <div class="mb-3">
+    <label for="name" class="form-label">Nombre</label>
+    <input
+      type="text"
+      class="form-control"
+      id="name"
+      name="name"
+      value="<%= user.name || '' %>"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input
+      type="email"
+      class="form-control"
+      id="email"
+      name="email"
+      value="<%= user.email || '' %>"
+      required
+    />
+  </div>
+
+  <hr class="my-4" />
+
+  <h5>Valores por defecto para informes</h5>
+
+  <div class="mb-3">
+    <label for="default_club" class="form-label">Club por defecto</label>
+    <input
+      type="text"
+      class="form-control"
+      id="default_club"
+      name="default_club"
+      value="<%= user.default_club || '' %>"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="default_team" class="form-label">Equipo por defecto</label>
+    <input
+      type="text"
+      class="form-control"
+      id="default_team"
+      name="default_team"
+      value="<%= user.default_team || '' %>"
+    />
+  </div>
+
+  <button type="submit" class="btn btn-primary">Guardar cambios</button>
+  <a href="/admin/users" class="btn btn-secondary ms-2">Volver</a>
+</form>
+

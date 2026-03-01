@@ -47,9 +47,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const userAdminRoutes = require('./routes/userAdminRoutes');
 
 app.use('/', authRoutes);
 app.use('/reports', reportRoutes);
+app.use('/admin/users', userAdminRoutes);
 
 app.get('/', (req, res) => {
   if (req.session.user) {

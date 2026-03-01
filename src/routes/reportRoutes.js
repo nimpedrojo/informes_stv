@@ -1,4 +1,7 @@
 const express = require('express');
+const path = require('path');
+const XLSX = require('xlsx');
+
 const {
   createReport,
   getAllReports,
@@ -26,7 +29,18 @@ function ensureAdmin(req, res, next) {
 }
 
 router.get('/new', ensureAuth, (req, res) => {
-  res.render('reports/new', { formData: {}, validationErrors: {} });
+  const defaultClub =
+    (req.session.user && req.session.user.default_club) || 'Stadium Venecia';
+  const defaultTeam =
+    (req.session.user && req.session.user.default_team) || 'Primera Infantil';
+
+  res.render('reports/new', {
+    formData: {
+      club: defaultClub,
+      team: defaultTeam,
+    },
+    validationErrors: {},
+  });
 });
 
 router.post('/new', ensureAuth, async (req, res) => {
@@ -150,12 +164,18 @@ router.post('/new', ensureAuth, async (req, res) => {
       });
     }
 
+    // Valores por defecto de club/equipo desde la sesión (si no se ha rellenado nada)
+    const finalClub =
+      club || (req.session.user && req.session.user.default_club) || 'Stadium Venecia';
+    const finalTeam =
+      team || (req.session.user && req.session.user.default_team) || 'Primera Infantil';
+
     await createReport({
       player_name,
       player_surname,
       year: year || null,
-      club,
-      team,
+      club: finalClub,
+      team: finalTeam,
       laterality,
       contact,
       pos1,
@@ -231,6 +251,90 @@ router.get('/', ensureAdmin, async (req, res) => {
     console.error('Error al obtener informes:', err);
     req.flash('error', 'Ha ocurrido un error al cargar los informes.');
     res.redirect('/');
+  }
+});
+
+// Descargar informe en Excel basado en plantilla
+router.get('/:id/excel', ensureAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const report = await getReportById(id);
+    if (!report) {
+      req.flash('error', 'Informe no encontrado.');
+      return res.redirect('/reports');
+    }
+
+    const templatePath =
+      process.env.REPORT_TEMPLATE_PATH ||
+      path.join(__dirname, '..', 'templates', 'report_template.xlsm');
+
+    const workbook = XLSX.readFile(templatePath, {
+      cellDates: true,
+      cellNF: true,
+      cellStyles: true,
+      bookVBA: true, // conservar macros y maquetado
+    });
+
+    const sheetName = 'INFORME 1';
+    const sheet = workbook.Sheets[sheetName];
+    if (!sheet) {
+      req.flash('error', `No se ha encontrado la hoja "${sheetName}" en la plantilla.`);
+      return res.redirect(`/reports/${id}`);
+    }
+
+    const setCellValue = (addr, value, type) => {
+      const cell = sheet[addr] || {};
+      cell.v = value;
+      if (type) cell.t = type;
+      sheet[addr] = cell;
+    };
+
+    // Rellenar celdas según el mapeo proporcionado
+    setCellValue('B16', `${report.player_name || ''}`, 's');
+    setCellValue('B17', `${report.player_surname || ''}`, 's');
+    setCellValue('B18', report.year != null ? String(report.year) : '', 's');
+
+  
+
+    const outBuffer = XLSX.write(workbook, {
+      bookType: 'xlsm',
+      type: 'buffer',
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.ms-excel.sheet.macroEnabled.12',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="Informe_${id}.xlsm"`,
+    );
+    return res.send(outBuffer);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al generar Excel del informe:', err);
+    req.flash(
+      'error',
+      'Ha ocurrido un error al generar el Excel del informe.',
+    );
+    return res.redirect(`/reports/${req.params.id}`);
+  }
+});
+
+// API JSON con todos los datos del informe (para Excel / integraciones)
+router.get('/api/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const report = await getReportById(id);
+    if (!report) {
+      return res.status(404).json({ error: 'Informe no encontrado' });
+    }
+    // Devolvemos el objeto completo que viene de la BD (todas las columnas de reports + datos del autor)
+    return res.json(report);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error en API de informe:', err);
+    return res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 

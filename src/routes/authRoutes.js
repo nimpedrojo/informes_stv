@@ -1,6 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { createUser, findUserByEmail } = require('../models/userModel');
+const {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  updateUserAccount,
+} = require('../models/userModel');
 
 const router = express.Router();
 
@@ -41,6 +46,8 @@ router.post('/login', ensureGuest, async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      default_club: user.default_club,
+      default_team: user.default_team,
     };
     req.flash('success', 'Has iniciado sesión correctamente.');
     return res.redirect('/reports/new');
@@ -98,6 +105,57 @@ router.post('/logout', ensureAuth, (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login');
   });
+});
+
+// Página de cuenta del usuario
+router.get('/account', ensureAuth, async (req, res) => {
+  try {
+    const user = await findUserById(req.session.user.id);
+    return res.render('auth/account', {
+      user,
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al cargar cuenta:', err);
+    req.flash('error', 'Ha ocurrido un error al cargar tu cuenta.');
+    return res.redirect('/reports/new');
+  }
+});
+
+router.post('/account', ensureAuth, async (req, res) => {
+  const { name, email, default_club, default_team } = req.body;
+
+  if (!name || !email) {
+    req.flash('error', 'Nombre y email son obligatorios.');
+    return res.redirect('/account');
+  }
+
+  try {
+    const affected = await updateUserAccount(req.session.user.id, {
+      name,
+      email,
+      defaultClub: default_club || null,
+      defaultTeam: default_team || null,
+    });
+    if (!affected) {
+      req.flash('error', 'No se ha podido actualizar tu cuenta.');
+      return res.redirect('/account');
+    }
+
+    // Actualizar los datos en sesión
+    req.session.user.name = name;
+    req.session.user.email = email;
+    req.session.user.default_club = default_club || null;
+    req.session.user.default_team = default_team || null;
+
+    req.flash('success', 'Tu cuenta se ha actualizado correctamente.');
+    return res.redirect('/account');
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error al actualizar cuenta:', err);
+    req.flash('error', 'Ha ocurrido un error al actualizar tu cuenta.');
+    return res.redirect('/account');
+  }
 });
 
 module.exports = router;

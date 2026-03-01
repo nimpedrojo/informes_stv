@@ -9,6 +9,8 @@ async function createUsersTable() {
       email VARCHAR(150) NOT NULL UNIQUE,
       password_hash VARCHAR(255) NOT NULL,
       role VARCHAR(20) NOT NULL DEFAULT 'user',
+      default_club VARCHAR(150),
+      default_team VARCHAR(150),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `;
@@ -21,6 +23,24 @@ async function createUsersTable() {
     if (e && e.code !== 'ER_DUP_FIELDNAME') {
       // eslint-disable-next-line no-console
       console.error('Error altering users table', e);
+    }
+  }
+
+  // Añadimos columnas de configuración por defecto si no existían
+  try {
+    await db.query('ALTER TABLE users ADD COLUMN default_club VARCHAR(150)');
+  } catch (e) {
+    if (e && e.code !== 'ER_DUP_FIELDNAME') {
+      // eslint-disable-next-line no-console
+      console.error('Error adding default_club column', e);
+    }
+  }
+  try {
+    await db.query('ALTER TABLE users ADD COLUMN default_team VARCHAR(150)');
+  } catch (e) {
+    if (e && e.code !== 'ER_DUP_FIELDNAME') {
+      // eslint-disable-next-line no-console
+      console.error('Error adding default_team column', e);
     }
   }
 }
@@ -37,6 +57,39 @@ async function createUser({ name, email, password, role = 'user' }) {
 async function findUserByEmail(email) {
   const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
   return rows[0];
+}
+
+async function findUserById(id) {
+  const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+  return rows[0];
+}
+
+async function updateUserAccount(id, { name, email, defaultClub, defaultTeam }) {
+  const [result] = await db.query(
+    'UPDATE users SET name = ?, email = ?, default_club = ?, default_team = ? WHERE id = ?',
+    [name, email, defaultClub, defaultTeam, id],
+  );
+  return result.affectedRows;
+}
+
+async function getAllUsers() {
+  const [rows] = await db.query(
+    'SELECT id, name, email, role, default_club, default_team, created_at FROM users ORDER BY created_at DESC',
+  );
+  return rows;
+}
+
+async function updateUserRole(id, role) {
+  const [result] = await db.query('UPDATE users SET role = ? WHERE id = ?', [
+    role,
+    id,
+  ]);
+  return result.affectedRows;
+}
+
+async function deleteUser(id) {
+  const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+  return result.affectedRows;
 }
 
 async function ensureAdminUser() {
@@ -59,5 +112,10 @@ module.exports = {
   createUsersTable,
   createUser,
   findUserByEmail,
+  findUserById,
+  updateUserAccount,
+  getAllUsers,
+  updateUserRole,
+  deleteUser,
   ensureAdminUser,
 };
