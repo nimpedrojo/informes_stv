@@ -9,6 +9,7 @@ const {
   updateReport,
   deleteReport,
 } = require('../models/reportModel');
+const { getPlayersByTeam } = require('../models/playerModel');
 
 const router = express.Router();
 
@@ -28,11 +29,17 @@ function ensureAdmin(req, res, next) {
   return next();
 }
 
-router.get('/new', ensureAuth, (req, res) => {
+router.get('/new', ensureAuth, async (req, res) => {
   const defaultClub =
     (req.session.user && req.session.user.default_club) || 'Stadium Venecia';
   const defaultTeam =
     (req.session.user && req.session.user.default_team) || 'Primera Infantil';
+
+  // Intentamos filtrar jugadores por el equipo por defecto; si no hay, se podrán mostrar todos más adelante
+  let players = await getPlayersByTeam(defaultTeam);
+  if (!players.length) {
+    players = await getPlayersByTeam(null);
+  }
 
   res.render('reports/new', {
     formData: {
@@ -40,6 +47,7 @@ router.get('/new', ensureAuth, (req, res) => {
       team: defaultTeam,
     },
     validationErrors: {},
+    players,
   });
 });
 
@@ -155,12 +163,14 @@ router.post('/new', ensureAuth, async (req, res) => {
     const overallRating = avg(overallValues);
 
     if (!player_name || !player_surname) {
+      const playersForForm = await getPlayersByTeam(team || null);
       return res.status(400).render('reports/new', {
         formData: req.body,
         validationErrors: {
           player_name: !player_name,
           player_surname: !player_surname,
         },
+        players: playersForForm,
       });
     }
 
@@ -234,9 +244,11 @@ router.post('/new', ensureAuth, async (req, res) => {
       'error',
       `Ha ocurrido un error al guardar el informe: ${err.message}`,
     );
+    const playersForForm = await getPlayersByTeam(team || null);
     return res.status(500).render('reports/new', {
       formData: req.body,
       validationErrors: {},
+      players: playersForForm,
     });
   }
 });

@@ -12,7 +12,9 @@
   <table class="table table-striped table-hover align-middle">
     <thead>
       <tr>
-        <th></th>
+        <th>
+          <input type="checkbox" id="selectAllReports" />
+        </th>
         <th>ID</th>
         <th>Jugador</th>
         <th>Año</th>
@@ -30,6 +32,7 @@
         <td>
           <input
             type="checkbox"
+            class="report-select"
             name="reportIds"
             value="<%= r.id %>"
           />
@@ -72,3 +75,16 @@
 </div>
 </form>
 <% } %>
+
+<script>
+  (function () {
+    var selectAll = document.getElementById('selectAllReports');
+    if (!selectAll) return;
+    selectAll.addEventListener('change', function () {
+      var checks = document.querySelectorAll('input.report-select');
+      checks.forEach(function (c) {
+        c.checked = selectAll.checked;
+      });
+    });
+  })();
+</script>

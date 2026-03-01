@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "import:players": "node scripts/import_players_from_excel.js"
   },
   "keywords": [],
   "author": "",

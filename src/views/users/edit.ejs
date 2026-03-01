@@ -42,16 +42,26 @@
 
   <div class="mb-3">
     <label for="default_team" class="form-label">Equipo por defecto</label>
-    <input
-      type="text"
-      class="form-control"
+    <select
+      class="form-select"
       id="default_team"
       name="default_team"
-      value="<%= user.default_team || '' %>"
-    />
+    >
+      <% const currentTeam = user.default_team || '' ; %>
+      <option value="">-- Selecciona equipo --</option>
+      <% if (typeof teams !== 'undefined' && teams && teams.length) { %>
+        <% teams.forEach(function (t) { %>
+          <option value="<%= t %>" <%= t === currentTeam ? 'selected' : '' %>>
+            <%= t %>
+          </option>
+        <% }) %>
+      <% } %>
+      <% if (currentTeam && (!teams || !teams.includes(currentTeam))) { %>
+        <option value="<%= currentTeam %>" selected><%= currentTeam %></option>
+      <% } %>
+    </select>
   </div>
 
   <button type="submit" class="btn btn-primary">Guardar cambios</button>
   <a href="/admin/users" class="btn btn-secondary ms-2">Volver</a>
 </form>
-

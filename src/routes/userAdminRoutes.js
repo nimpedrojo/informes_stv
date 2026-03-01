@@ -6,6 +6,7 @@ const {
   findUserById,
   updateUserAccount,
 } = require('../models/userModel');
+const { getPlayersByTeam } = require('../models/playerModel');
 
 const router = express.Router();
 
@@ -133,7 +134,12 @@ router.get('/:id/edit', ensureAdmin, async (req, res) => {
       req.flash('error', 'Usuario no encontrado.');
       return res.redirect('/admin/users');
     }
-    return res.render('users/edit', { user });
+    const teams = await getPlayersByTeam(null);
+    const uniqueTeams = Array.from(
+      new Set(teams.map((p) => p.team).filter((t) => t && t.trim())),
+    ).sort();
+
+    return res.render('users/edit', { user, teams: uniqueTeams });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error al cargar usuario para edición:', err);

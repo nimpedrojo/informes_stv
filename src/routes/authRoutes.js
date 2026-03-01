@@ -6,6 +6,7 @@ const {
   findUserById,
   updateUserAccount,
 } = require('../models/userModel');
+const { getPlayersByTeam } = require('../models/playerModel');
 
 const router = express.Router();
 
@@ -111,8 +112,14 @@ router.post('/logout', ensureAuth, (req, res) => {
 router.get('/account', ensureAuth, async (req, res) => {
   try {
     const user = await findUserById(req.session.user.id);
+    const teams = await getPlayersByTeam(null);
+    const uniqueTeams = Array.from(
+      new Set(teams.map((p) => p.team).filter((t) => t && t.trim())),
+    ).sort();
+
     return res.render('auth/account', {
       user,
+      teams: uniqueTeams,
     });
   } catch (err) {
     // eslint-disable-next-line no-console

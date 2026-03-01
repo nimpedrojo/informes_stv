@@ -332,6 +332,52 @@ describe('Aplicación de informes STV', () => {
     expect(rows.length).toBe(0);
   });
 
+  test('el borrado múltiple de usuarios desvincula sus informes (created_by = NULL)', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Bulk FK',
+      role: 'admin',
+    });
+    const user1 = await createTestUser({
+      name: 'User With Reports 1',
+      role: 'user',
+    });
+    const user2 = await createTestUser({
+      name: 'User With Reports 2',
+      role: 'user',
+    });
+
+    // Creamos informes ligados a esos usuarios
+    await db.query(
+      'INSERT INTO reports (player_name, player_surname, created_by) VALUES (?, ?, ?)',
+      ['JugadorA', 'Test', user1.id],
+    );
+    await db.query(
+      'INSERT INTO reports (player_name, player_surname, created_by) VALUES (?, ?, ?)',
+      ['JugadorB', 'Test', user2.id],
+    );
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent.post('/admin/users/bulk-delete').send({
+      userIds: [String(user1.id), String(user2.id)],
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/admin/users');
+
+    const [userRows] = await db.query(
+      'SELECT id FROM users WHERE id IN (?, ?)',
+      [user1.id, user2.id],
+    );
+    expect(userRows.length).toBe(0);
+
+    const [reportRows] = await db.query(
+      'SELECT created_by FROM reports WHERE player_name IN (?, ?) AND created_by IS NOT NULL',
+      ['JugadorA', 'JugadorB'],
+    );
+    expect(reportRows.length).toBe(0);
+  });
+
   test('un admin puede borrar varios informes de una vez', async () => {
     const admin = await createTestUser({
       name: 'Admin Reports Bulk',

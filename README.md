@@ -24,10 +24,18 @@ Aplicación web sencilla para gestionar informes de ojeo / scouting de jugadores
   - Exportación de informes a una plantilla Excel (`.xlsm`) a partir de los datos guardados.
   - API JSON (`/reports/api/:id`) para consumir los datos del informe desde Excel u otras integraciones.
 
+- **Base de datos de jugadores**
+  - Tabla `players` alimentada desde un Excel (por ejemplo `Deportistas_2025.xlsx`) mediante el script de importación.
+  - Datos guardados por jugador: nombre, apellidos, equipo, fecha de nacimiento, año de nacimiento y lateralidad.
+  - En el formulario de **Nuevo informe** hay un desplegable de jugadores:
+    - Por defecto muestra solo los jugadores del equipo configurado en la cuenta del usuario; si no hay coincidencias, muestra todos.
+    - Al seleccionar un jugador se rellenan automáticamente nombre, apellidos, equipo, año y lateralidad del informe.
+
 - **Cuenta de usuario y configuración por defecto**
   - Cada usuario puede editar:
     - Nombre y email.
     - Club y equipo por defecto.
+  - El equipo por defecto se elige desde un desplegable con los equipos existentes en la tabla `players` (tanto en “Mi cuenta” como en la edición de usuario para administradores).
   - Al crear un informe nuevo, el formulario de **Club** y **Equipo** se pre‑rellena con esos valores y, si se dejan vacíos, se guardan como valores por defecto.
 
 - **Gestión de usuarios (solo admin)**
@@ -35,6 +43,7 @@ Aplicación web sencilla para gestionar informes de ojeo / scouting de jugadores
   - Edición de datos básicos de cualquier usuario.
   - Cambio de rol (`user` ↔ `admin`).
   - Borrado individual y borrado múltiple de usuarios (no permite borrar el usuario con sesión activa).
+  - Al borrar usuarios se desvinculan sus informes (campo `created_by` pasa a `NULL`) para no perder la información de los reports.
 
 ## Estructura básica del proyecto
 
@@ -45,6 +54,7 @@ Aplicación web sencilla para gestionar informes de ojeo / scouting de jugadores
 - `src/routes/` – Rutas de autenticación, informes y administración de usuarios.
 - `src/views/` – Vistas EJS (layout general, login/registro, dashboard, informes, cuenta, usuarios).
 - `src/public/` – Recursos estáticos (CSS, iconos del dashboard, etc.).
+- `scripts/import_players_from_excel.js` – Script para importar jugadores desde un Excel a la tabla `players`.
 - `tests/app.test.js` – Tests de regresión con Jest + Supertest.
 
 ## Puesta en marcha
@@ -89,4 +99,3 @@ npm test
 
 - La exportación a Excel usa una plantilla `.xlsm` y la librería `xlsx`. Debido a limitaciones de la librería open‑source, la generación de Excel con formato avanzado se realiza preferentemente desde una macro en el propio Excel consumiendo la API JSON.
 - El código está pensado para uso personal / interno; no incluye todas las medidas de seguridad y hardening necesarias para un entorno de producción expuesto a Internet.
-
