@@ -200,3 +200,19 @@ body {
   max-height: 120px;
   object-fit: contain;
 }
+
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.login-logo {
+  max-width: 220px;
+  height: auto;
+  background-color: var(--sv-red);
+  border-radius: 0.75rem;
+  padding: 6px;
+}
