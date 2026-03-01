@@ -410,6 +410,37 @@ describe('Aplicación de informes STV', () => {
     expect(rows.length).toBe(0);
   });
 
+  test('un admin puede exportar los informes a CSV con encabezado', async () => {
+    const admin = await createTestUser({
+      name: 'Admin CSV',
+      role: 'admin',
+    });
+
+    // Creamos un informe de ejemplo en la BD
+    const [insert] = await db.query(
+      'INSERT INTO reports (player_name, player_surname, club, team, year) VALUES (?, ?, ?, ?, ?)',
+      ['JugadorCSV', 'Apellido', 'Club CSV', 'Equipo CSV', 2010],
+    );
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const res = await agent.get('/reports/export/csv');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/csv');
+
+    const lines = res.text.trim().split('\n');
+    expect(lines.length).toBeGreaterThan(1);
+
+    const header = lines[0].split(',');
+    expect(header).toContain('id');
+    expect(header).toContain('player_name');
+    expect(header).toContain('player_surname');
+
+    const dataLine = lines.find((l) => l.includes('JugadorCSV'));
+    expect(dataLine).toBeDefined();
+  });
+
   test('la API de report devuelve 404 si el informe no existe', async () => {
     const res = await request(app).get('/reports/api/999999');
     expect(res.status).toBe(404);

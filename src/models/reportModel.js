@@ -129,6 +129,11 @@ async function getAllReports() {
   return rows;
 }
 
+async function getAllReportsRaw() {
+  const [rows] = await db.query('SELECT * FROM reports ORDER BY created_at DESC');
+  return rows;
+}
+
 async function getReportById(id) {
   const [rows] = await db.query(
     `SELECT r.*, u.name AS created_by_name, u.email AS created_by_email
@@ -157,6 +162,7 @@ module.exports = {
   createReportsTable,
   createReport,
   getAllReports,
+  getAllReportsRaw,
   getReportById,
   updateReport,
   deleteReport,
