@@ -82,6 +82,48 @@ router.post('/:id/delete', ensureAdmin, async (req, res) => {
   }
 });
 
+// Borrado múltiple de usuarios
+router.post('/bulk-delete', ensureAdmin, async (req, res) => {
+  let { userIds } = req.body;
+
+  if (!userIds) {
+    req.flash('error', 'No has seleccionado ningún usuario para borrar.');
+    return res.redirect('/admin/users');
+  }
+
+  if (!Array.isArray(userIds)) {
+    userIds = [userIds];
+  }
+
+  try {
+    const idsToDelete = userIds
+      .map((id) => Number(id))
+      .filter((id) => Number.isInteger(id) && id !== req.session.user.id);
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const id of idsToDelete) {
+      // eslint-disable-next-line no-await-in-loop
+      await deleteUser(id);
+    }
+
+    if (idsToDelete.length) {
+      req.flash('success', 'Usuarios seleccionados borrados correctamente.');
+    } else {
+      req.flash(
+        'error',
+        'No se ha borrado ningún usuario (no puedes borrar tu propio usuario).',
+      );
+    }
+
+    return res.redirect('/admin/users');
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error en borrado múltiple de usuarios:', err);
+    req.flash('error', 'Ha ocurrido un error al borrar los usuarios.');
+    return res.redirect('/admin/users');
+  }
+});
+
 // Formulario de edición de usuario (datos básicos y configuraciones)
 router.get('/:id/edit', ensureAdmin, async (req, res) => {
   const { id } = req.params;

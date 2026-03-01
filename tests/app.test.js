@@ -50,6 +50,26 @@ describe('Aplicación de informes STV', () => {
     expect(res.headers.location).toBe('/login');
   });
 
+  test('un usuario autenticado es redirigido de / a /dashboard', async () => {
+    const { email } = await createTestUser({
+      name: 'Dashboard Redirect',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/dashboard');
+  });
+
+  test('un usuario no autenticado que entra a /dashboard va a /login', async () => {
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/login');
+  });
+
   test('un usuario autenticado puede ver su página de cuenta', async () => {
     const { email } = await createTestUser({
       name: 'Cuenta Tester',
@@ -63,6 +83,24 @@ describe('Aplicación de informes STV', () => {
     expect(res.status).toBe(200);
     expect(res.text).toContain('Mi cuenta');
     expect(res.text).toContain('Cuenta Tester');
+  });
+
+  test('dashboard para usuario normal muestra solo opciones de usuario', async () => {
+    const { email } = await createTestUser({
+      name: 'User Dashboard',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Nuevo informe');
+    expect(res.text).toContain('/reports/new');
+    expect(res.text).toContain('Mi cuenta');
+    expect(res.text).toContain('/account');
+    expect(res.text).not.toContain('Gestión de usuarios');
   });
 
   test('un usuario puede actualizar sus valores por defecto en cuenta', async () => {
@@ -145,6 +183,28 @@ describe('Aplicación de informes STV', () => {
     const res = await agent.get('/admin/users');
     expect(res.status).toBe(200);
     expect(res.text).toContain('Gestión de usuarios');
+  });
+
+  test('dashboard para admin muestra opciones de admin', async () => {
+    const { email } = await createTestUser({
+      name: 'Admin Dashboard',
+      role: 'admin',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Nuevo informe');
+    expect(res.text).toContain('/reports/new');
+    expect(res.text).toContain('Mi cuenta');
+    expect(res.text).toContain('/account');
+    expect(res.text).toContain('Listado de informes');
+    expect(res.text).toContain('/reports');
+    expect(res.text).toContain('Gestión de usuarios');
+    expect(res.text).toContain('/admin/users');
+    expect(res.text).toContain('/img/report.svg');
   });
 
   test('un no admin no puede acceder a la gestión de usuarios', async () => {
@@ -239,6 +299,68 @@ describe('Aplicación de informes STV', () => {
     const [rows] = await db.query('SELECT id FROM users WHERE id = ?', [
       user.id,
     ]);
+    expect(rows.length).toBe(0);
+  });
+
+  test('un admin puede borrar varios usuarios de una vez', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Bulk',
+      role: 'admin',
+    });
+    const user1 = await createTestUser({
+      name: 'User Bulk 1',
+      role: 'user',
+    });
+    const user2 = await createTestUser({
+      name: 'User Bulk 2',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent.post('/admin/users/bulk-delete').send({
+      userIds: [String(user1.id), String(user2.id)],
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/admin/users');
+
+    const [rows] = await db.query(
+      'SELECT id FROM users WHERE id IN (?, ?)',
+      [user1.id, user2.id],
+    );
+    expect(rows.length).toBe(0);
+  });
+
+  test('un admin puede borrar varios informes de una vez', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Reports Bulk',
+      role: 'admin',
+    });
+
+    // Creamos algunos informes directamente en la BD
+    const [insert1] = await db.query(
+      'INSERT INTO reports (player_name, player_surname, created_by) VALUES (?, ?, ?)',
+      ['Jugador1', 'Bulk', admin.id],
+    );
+    const [insert2] = await db.query(
+      'INSERT INTO reports (player_name, player_surname, created_by) VALUES (?, ?, ?)',
+      ['Jugador2', 'Bulk', admin.id],
+    );
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent.post('/reports/bulk-delete').send({
+      reportIds: [String(insert1.insertId), String(insert2.insertId)],
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/reports');
+
+    const [rows] = await db.query(
+      'SELECT id FROM reports WHERE id IN (?, ?)',
+      [insert1.insertId, insert2.insertId],
+    );
     expect(rows.length).toBe(0);
   });
 

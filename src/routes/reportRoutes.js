@@ -429,4 +429,46 @@ router.post('/:id/delete', ensureAdmin, async (req, res) => {
   }
 });
 
+// Borrado múltiple de informes (solo admin)
+router.post('/bulk-delete', ensureAdmin, async (req, res) => {
+  let { reportIds } = req.body;
+
+  if (!reportIds) {
+    req.flash('error', 'No has seleccionado ningún informe para borrar.');
+    return res.redirect('/reports');
+  }
+
+  if (!Array.isArray(reportIds)) {
+    reportIds = [reportIds];
+  }
+
+  try {
+    const idsToDelete = reportIds
+      .map((id) => Number(id))
+      .filter((id) => Number.isInteger(id));
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const id of idsToDelete) {
+      // eslint-disable-next-line no-await-in-loop
+      await deleteReport(id);
+    }
+
+    if (idsToDelete.length) {
+      req.flash('success', 'Informes seleccionados borrados correctamente.');
+    } else {
+      req.flash('error', 'No se ha borrado ningún informe.');
+    }
+
+    return res.redirect('/reports');
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error en borrado múltiple de informes:', err);
+    req.flash(
+      'error',
+      'Ha ocurrido un error al borrar los informes seleccionados.',
+    );
+    return res.redirect('/reports');
+  }
+});
+
 module.exports = router;

@@ -11,7 +11,7 @@ const router = express.Router();
 
 function ensureGuest(req, res, next) {
   if (req.session.user) {
-    return res.redirect('/reports/new');
+    return res.redirect('/dashboard');
   }
   return next();
 }
@@ -50,7 +50,7 @@ router.post('/login', ensureGuest, async (req, res) => {
       default_team: user.default_team,
     };
     req.flash('success', 'Has iniciado sesión correctamente.');
-    return res.redirect('/reports/new');
+    return res.redirect('/dashboard');
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
@@ -156,6 +156,11 @@ router.post('/account', ensureAuth, async (req, res) => {
     req.flash('error', 'Ha ocurrido un error al actualizar tu cuenta.');
     return res.redirect('/account');
   }
+});
+
+// Dashboard principal (menú de cards)
+router.get('/dashboard', ensureAuth, (req, res) => {
+  res.render('dashboard');
 });
 
 module.exports = router;

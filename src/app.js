@@ -55,7 +55,7 @@ app.use('/admin/users', userAdminRoutes);
 
 app.get('/', (req, res) => {
   if (req.session.user) {
-    return res.redirect('/reports/new');
+    return res.redirect('/dashboard');
   }
   return res.redirect('/login');
 });
