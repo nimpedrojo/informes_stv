@@ -64,11 +64,23 @@ async function findUserById(id) {
   return rows[0];
 }
 
-async function updateUserAccount(id, { name, email, defaultClub, defaultTeam }) {
-  const [result] = await db.query(
-    'UPDATE users SET name = ?, email = ?, default_club = ?, default_team = ? WHERE id = ?',
-    [name, email, defaultClub, defaultTeam, id],
-  );
+async function updateUserAccount(
+  id,
+  { name, email, defaultClub, defaultTeam, passwordHash = null },
+) {
+  let sql =
+    'UPDATE users SET name = ?, email = ?, default_club = ?, default_team = ?';
+  const params = [name, email, defaultClub, defaultTeam];
+
+  if (passwordHash) {
+    sql += ', password_hash = ?';
+    params.push(passwordHash);
+  }
+
+  sql += ' WHERE id = ?';
+  params.push(id);
+
+  const [result] = await db.query(sql, params);
   return result.affectedRows;
 }
 

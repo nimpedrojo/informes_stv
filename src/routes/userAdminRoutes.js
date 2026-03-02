@@ -150,7 +150,7 @@ router.get('/:id/edit', ensureAdmin, async (req, res) => {
 
 router.post('/:id/edit', ensureAdmin, async (req, res) => {
   const { id } = req.params;
-  const { name, email, default_club, default_team } = req.body;
+  const { name, email, default_club, default_team, new_password } = req.body;
 
   if (!name || !email) {
     req.flash('error', 'Nombre y email son obligatorios.');
@@ -158,11 +158,25 @@ router.post('/:id/edit', ensureAdmin, async (req, res) => {
   }
 
   try {
+    let passwordHash = null;
+    if (new_password && new_password.trim()) {
+      if (new_password.length < 8) {
+        req.flash(
+          'error',
+          'La nueva contraseña debe tener al menos 8 caracteres.',
+        );
+        return res.redirect(`/admin/users/${id}/edit`);
+      }
+      const bcrypt = require('bcryptjs');
+      passwordHash = await bcrypt.hash(new_password, 10);
+    }
+
     const affected = await updateUserAccount(id, {
       name,
       email,
       defaultClub: default_club || null,
       defaultTeam: default_team || null,
+      passwordHash,
     });
     if (!affected) {
       req.flash('error', 'No se ha podido actualizar el usuario.');
