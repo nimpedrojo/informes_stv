@@ -35,6 +35,15 @@
       <li><strong>Fecha creación:</strong> <%= report.created_at.toISOString().slice(0, 10) %></li>
     </ul>
   </div>
+  <div class="col-md-4">
+    <h5>Resumen gráfico de valoraciones</h5>
+    <p class="text-muted mb-2">
+      Comparativa de las valoraciones medias en cada bloque.
+    </p>
+    <div class="bg-white border rounded p-2">
+      <canvas id="ratingsRadarChart" height="180"></canvas>
+    </div>
+  </div>
 </div>
 
 <div class="row">
@@ -104,16 +113,6 @@
       </li>
       <li><strong>Total personalidad:</strong> <%= report.pers_total || '-' %></li>
     </ul>
-  </div>
-</div>
-
-<div class="mt-4">
-  <h5>Resumen gráfico de valoraciones</h5>
-  <p class="text-muted mb-2">
-    Comparativa de las valoraciones medias en cada bloque.
-  </p>
-  <div class="bg-white border rounded p-3">
-    <canvas id="ratingsRadarChart" height="260"></canvas>
   </div>
 </div>
 
