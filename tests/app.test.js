@@ -204,7 +204,37 @@ describe('Aplicación de informes STV', () => {
     expect(res.text).toContain('/reports');
     expect(res.text).toContain('Gestión de usuarios');
     expect(res.text).toContain('/admin/users');
+    expect(res.text).toContain('/admin/players');
+    expect(res.text).toContain('Jugadores');
     expect(res.text).toContain('/img/report.svg');
+  });
+
+  test('un admin puede ver la página de gestión de jugadores', async () => {
+    const { email } = await createTestUser({
+      name: 'Admin Players',
+      role: 'admin',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/admin/players');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Base de jugadores');
+  });
+
+  test('un no admin no puede acceder a la gestión de jugadores', async () => {
+    const { email } = await createTestUser({
+      name: 'User Players',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent.post('/login').send({ email, password: 'password123' });
+
+    const res = await agent.get('/admin/players');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/');
   });
 
   test('un no admin no puede acceder a la gestión de usuarios', async () => {

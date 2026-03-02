@@ -45,6 +45,11 @@ Aplicación web sencilla para gestionar informes de ojeo / scouting de jugadores
   - Borrado individual y borrado múltiple de usuarios (no permite borrar el usuario con sesión activa).
   - Al borrar usuarios se desvinculan sus informes (campo `created_by` pasa a `NULL`) para no perder la información de los reports.
 
+- **Gestión de jugadores (solo admin)**
+  - Listado de jugadores de la tabla `players`.
+  - Edición de datos básicos (nombre, apellidos, equipo, año y lateralidad).
+  - Borrado individual y borrado múltiple de jugadores.
+
 ## Estructura básica del proyecto
 
 - `src/app.js` – Configuración principal de Express y middlewares.

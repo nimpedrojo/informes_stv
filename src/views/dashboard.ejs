@@ -46,6 +46,25 @@
   </div>
 
   <% if (currentUser && currentUser.role === 'admin') { %>
+  <!-- Gestión de jugadores (solo admin) -->
+  <div class="col-sm-6 col-lg-3">
+    <a href="/admin/players" class="text-decoration-none text-reset">
+      <div class="card h-100 shadow-sm">
+        <img
+          src="/img/list.svg"
+          class="card-img-top icon-dashboard p-3"
+          alt="Gestión de jugadores"
+        />
+        <div class="card-body">
+          <h5 class="card-title">Jugadores</h5>
+          <p class="card-text">
+            Ver, editar y borrar jugadores de la base.
+          </p>
+        </div>
+      </div>
+    </a>
+  </div>
+
   <!-- Listado de informes (solo admin) -->
   <div class="col-sm-6 col-lg-3">
     <a href="/reports" class="text-decoration-none text-reset">

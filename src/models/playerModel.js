@@ -44,8 +44,44 @@ async function getPlayersByTeam(team) {
   return rows;
 }
 
+async function getAllPlayers() {
+  const [rows] = await db.query(
+    'SELECT * FROM players ORDER BY team, last_name, first_name',
+  );
+  return rows;
+}
+
+async function getPlayerById(id) {
+  const [rows] = await db.query('SELECT * FROM players WHERE id = ?', [id]);
+  return rows[0];
+}
+
+async function updatePlayer(id, {
+  firstName,
+  lastName,
+  team,
+  birthDate,
+  birthYear,
+  laterality,
+}) {
+  const [result] = await db.query(
+    'UPDATE players SET first_name = ?, last_name = ?, team = ?, birth_date = ?, birth_year = ?, laterality = ? WHERE id = ?',
+    [firstName, lastName, team, birthDate, birthYear, laterality, id],
+  );
+  return result.affectedRows;
+}
+
+async function deletePlayer(id) {
+  const [result] = await db.query('DELETE FROM players WHERE id = ?', [id]);
+  return result.affectedRows;
+}
+
 module.exports = {
   createPlayersTable,
   insertPlayer,
   getPlayersByTeam,
+  getAllPlayers,
+  getPlayerById,
+  updatePlayer,
+  deletePlayer,
 };
