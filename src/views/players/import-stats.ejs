@@ -1,0 +1,35 @@
+﻿<h1 class="mb-4">Importar estadísticas</h1>
+
+<p class="text-muted">
+  Sube el CSV de estadísticas. Se limpiará la tabla <code>player_stats</code> y se cargarán solo
+  las filas que correspondan a jugadores existentes (coincidencia por apellidos y, si hace falta, equipo).
+</p>
+
+<form
+  action="/admin/players/import-stats"
+  method="POST"
+  enctype="multipart/form-data"
+  class="card p-4 shadow-sm"
+>
+  <div class="mb-3">
+    <label for="stats_csv" class="form-label">Archivo CSV</label>
+    <input
+      type="file"
+      class="form-control"
+      id="stats_csv"
+      name="stats_csv"
+      accept=".csv,text/csv"
+      required
+    />
+    <div class="form-text">
+      Codificación UTF-16LE; columnas esperadas: NOMBRE;EQUIPO;PARTIDOS;TITULAR;SUPLENTE;SIN JUGAR;MINUTOS;GOLES;ASISTENCIAS;TA;TR;CALI
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Importar estadísticas</button>
+    <a href="/admin/players" class="btn btn-outline-secondary">Volver</a>
+  </div>
+</form>
+
+

@@ -129,6 +129,62 @@ async function getAllReports() {
   return rows;
 }
 
+function resolveSort(field) {
+  const map = {
+    player: 'r.player_surname',
+    team: 'r.team',
+    rating: 'r.overall_rating',
+    created: 'r.created_at',
+    year: 'r.year',
+    id: 'r.id',
+  };
+  return map[field] || 'r.created_at';
+}
+
+function resolveDir(dir) {
+  return dir && dir.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+}
+
+async function getReportsFiltered({ team, sort, dir }) {
+  const sortCol = resolveSort(sort);
+  const sortDir = resolveDir(dir);
+
+  const params = [];
+  const where = [];
+
+  if (team) {
+    where.push('r.team = ?');
+    params.push(team);
+  }
+
+  const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+
+  const [rows] = await db.query(
+    `SELECT r.id,
+            r.player_name,
+            r.player_surname,
+            r.year,
+            r.club,
+            r.team,
+            r.overall_rating,
+            r.created_at,
+            u.name AS created_by_name
+       FROM reports r
+       LEFT JOIN users u ON r.created_by = u.id
+       ${whereClause}
+     ORDER BY ${sortCol} ${sortDir}, r.id DESC`,
+    params,
+  );
+  return rows;
+}
+
+async function getDistinctReportTeams() {
+  const [rows] = await db.query(
+    'SELECT DISTINCT team FROM reports WHERE team IS NOT NULL AND team <> "" ORDER BY team',
+  );
+  return rows.map((r) => r.team);
+}
+
 async function getAllReportsRaw() {
   const [rows] = await db.query('SELECT * FROM reports ORDER BY created_at DESC');
   return rows;
@@ -141,6 +197,19 @@ async function getReportById(id) {
        LEFT JOIN users u ON r.created_by = u.id
       WHERE r.id = ?`,
     [id],
+  );
+  return rows[0];
+}
+
+async function getLatestReportForPlayer(firstName, lastName) {
+  const [rows] = await db.query(
+    `SELECT r.*, u.name AS created_by_name
+       FROM reports r
+       LEFT JOIN users u ON r.created_by = u.id
+      WHERE LOWER(r.player_name) = LOWER(?) AND LOWER(r.player_surname) = LOWER(?)
+      ORDER BY r.created_at DESC
+      LIMIT 1`,
+    [firstName || '', lastName || ''],
   );
   return rows[0];
 }
@@ -162,8 +231,11 @@ module.exports = {
   createReportsTable,
   createReport,
   getAllReports,
+  getReportsFiltered,
+  getDistinctReportTeams,
   getAllReportsRaw,
   getReportById,
+  getLatestReportForPlayer,
   updateReport,
   deleteReport,
 };

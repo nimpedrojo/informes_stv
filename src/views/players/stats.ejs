@@ -1,0 +1,141 @@
+﻿<h1 class="mb-3">Estadísticas de <%= player.first_name %> <%= player.last_name %></h1>
+<p class="text-muted">
+  Equipo: <strong><%= player.team || 'N/D' %></strong> Â· Fuente: <%= stats.source_name || 'CSV' %>
+</p>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Partidos</div>
+        <h4 class="mb-0"><%= stats.matches %></h4>
+        <div class="small text-muted">
+          Titular <%= stats.starts %> Â· Suplente <%= stats.subs %> Â· Sin jugar <%= stats.not_played %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Minutos</div>
+        <h4 class="mb-0"><%= stats.minutes %></h4>
+        <div class="small text-muted">Media: <span id="minutesPerMatch">-</span> min/partido</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Goles + Asistencias</div>
+        <h4 class="mb-0"><%= stats.goals %>G / <%= stats.assists %>A</h4>
+        <div class="small text-muted">Contribución: <span id="gaPer90">-</span> por 90'</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Tarjetas</div>
+        <h4 class="mb-0">TA <%= stats.yellow_cards %> / TR <%= stats.red_cards %></h4>
+        <div class="small text-muted">por partido: <span id="cardsPerMatch">-</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header">Participación</div>
+      <div class="card-body">
+        <canvas id="pieParticipation" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header">Aportación ofensiva</div>
+      <div class="card-body">
+        <canvas id="pieAttack" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <a href="/admin/players" class="btn btn-outline-secondary">Volver</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const stats = <%- JSON.stringify(stats) %>;
+    const matches = Number(stats.matches) || 0;
+    const minutes = Number(stats.minutes) || 0;
+    const goals = Number(stats.goals) || 0;
+    const assists = Number(stats.assists) || 0;
+    const starts = Number(stats.starts) || 0;
+    const subs = Number(stats.subs) || 0;
+    const notPlayed = Number(stats.not_played) || 0;
+    const yellows = Number(stats.yellow_cards) || 0;
+    const reds = Number(stats.red_cards) || 0;
+
+    const minutesPerMatch = matches ? (minutes / matches).toFixed(1) : '-';
+    const gaPer90 = minutes ? (((goals + assists) * 90) / minutes).toFixed(2) : '-';
+    const cardsPerMatch = matches ? (((yellows + reds)) / matches).toFixed(2) : '-';
+
+    document.getElementById('minutesPerMatch').textContent = minutesPerMatch;
+    document.getElementById('gaPer90').textContent = gaPer90;
+    document.getElementById('cardsPerMatch').textContent = cardsPerMatch;
+
+    const ctxPie = document.getElementById('pieParticipation');
+    new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: ['Titular', 'Suplente', 'Sin jugar'],
+        datasets: [
+          {
+            data: [starts, subs, notPlayed],
+            backgroundColor: ['#c1121f', '#ffc107', '#d9d9d9'],
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: {
+            callbacks: {
+              label: (ctx) =>
+                `${ctx.label}: ${ctx.raw} (${matches ? ((ctx.raw / matches) * 100).toFixed(1) : 0}%)`,
+            },
+          },
+        },
+      },
+    });
+
+    const ctxAttack = document.getElementById('pieAttack');
+    new Chart(ctxAttack, {
+      type: 'doughnut',
+      data: {
+        labels: ['Goles', 'Asistencias', 'Sin Contribución'],
+        datasets: [
+          {
+            data: [goals, assists, Math.max(matches - (goals + assists), 0)],
+            backgroundColor: ['#c1121f', '#17a2b8', '#e5e5e5'],
+          },
+        ],
+      },
+      options: {
+        cutout: '55%',
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}` } },
+        },
+      },
+    });
+  })();
+</script>
+
+
+

@@ -1,3 +1,13 @@
+﻿<%
+function buildSortLink(field) {
+  const params = [];
+  const nextDir = (sort === field && dir === 'asc') ? 'desc' : 'asc';
+  params.push(`sort=${field}`);
+  params.push(`dir=${nextDir}`);
+  return `?${params.join('&')}`;
+}
+%>
+
 <h1 class="mb-4">Gestión de usuarios</h1>
 
 <form
@@ -12,13 +22,13 @@
         <th>
           <input type="checkbox" id="selectAllUsers" />
         </th>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Email</th>
-        <th>Rol</th>
+        <th><a href="<%= buildSortLink('id') %>">ID</a></th>
+        <th><a href="<%= buildSortLink('name') %>">Nombre</a></th>
+        <th><a href="<%= buildSortLink('email') %>">Email</a></th>
+        <th><a href="<%= buildSortLink('role') %>">Rol</a></th>
         <th>Club por defecto</th>
         <th>Equipo por defecto</th>
-        <th>Creado</th>
+        <th><a href="<%= buildSortLink('created') %>">Creado</a></th>
         <th></th>
       </tr>
     </thead>
@@ -38,29 +48,31 @@
         <td><%= u.id %></td>
         <td><%= u.name %></td>
         <td><%= u.email %></td>
-        <td>
+        <td class="text-nowrap align-middle">
           <form
             method="POST"
             action="/admin/users/<%= u.id %>/role"
-            class="d-flex align-items-center gap-2"
+            class="mb-0"
           >
-            <select
-              name="role"
-              class="form-select form-select-sm"
-              <%= (currentUser && currentUser.id === u.id) ? 'disabled' : '' %>
-            >
-              <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>
-                Usuario
-              </option>
-              <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>
-                Admin
-              </option>
-            </select>
-            <% if (!currentUser || currentUser.id !== u.id) { %>
-            <button type="submit" class="btn btn-sm btn-primary">
-              Guardar
-            </button>
-            <% } %>
+            <div class="role-group input-group-sm">
+              <select
+                name="role"
+                class="form-select"
+                <%= (currentUser && currentUser.id === u.id) ? 'disabled' : '' %>
+              >
+                <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>
+                  Usuario
+                </option>
+                <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>
+                  Admin
+                </option>
+              </select>
+              <% if (!currentUser || currentUser.id !== u.id) { %>
+              <button type="submit" class="btn btn-primary">
+                Guardar
+              </button>
+              <% } %>
+            </div>
           </form>
         </td>
         <td><%= u.default_club || '' %></td>
@@ -114,3 +126,4 @@
     });
   })();
 </script>
+

@@ -37,6 +37,7 @@ Aplicación web sencilla para gestionar informes de ojeo / scouting de jugadores
     - Club y equipo por defecto.
   - El equipo por defecto se elige desde un desplegable con los equipos existentes en la tabla `players` (tanto en “Mi cuenta” como en la edición de usuario para administradores).
   - Al crear un informe nuevo, el formulario de **Club** y **Equipo** se pre‑rellena con esos valores y, si se dejan vacíos, se guardan como valores por defecto.
+  - Tabla `player_stats` para estadísticas de jugadores: se alimenta desde un CSV con `npm run import:stats`, limpia la tabla antes de cada carga y solo inserta filas que coinciden con jugadores existentes (usa el apellido del jugador como prefijo del campo `NOMBRE` del CSV).
 
 - **Gestión de usuarios (solo admin)**
   - Listado de usuarios registrados con nombre, email, rol y configuraciones por defecto.
@@ -60,6 +61,7 @@ Aplicación web sencilla para gestionar informes de ojeo / scouting de jugadores
 - `src/views/` – Vistas EJS (layout general, login/registro, dashboard, informes, cuenta, usuarios).
 - `src/public/` – Recursos estáticos (CSS, iconos del dashboard, etc.).
 - `scripts/import_players_from_excel.js` – Script para importar jugadores desde un Excel a la tabla `players`.
+- `scripts/import_player_stats.js` – Script para importar estadísticas desde un CSV a la tabla `player_stats` (limpia la tabla antes de cargar).
 - `tests/app.test.js` – Tests de regresión con Jest + Supertest.
 
 ## Puesta en marcha

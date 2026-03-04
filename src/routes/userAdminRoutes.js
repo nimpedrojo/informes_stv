@@ -20,9 +20,15 @@ function ensureAdmin(req, res, next) {
 
 // Listado de usuarios registrados
 router.get('/', ensureAdmin, async (req, res) => {
+  const { sort, dir } = req.query;
   try {
-    const users = await getAllUsers();
-    return res.render('users/list', { users, currentUser: req.session.user });
+    const users = await getAllUsers({ sort, dir });
+    return res.render('users/list', {
+      users,
+      currentUser: req.session.user,
+      sort: sort || 'created',
+      dir: dir || 'desc',
+    });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error al obtener usuarios:', err);

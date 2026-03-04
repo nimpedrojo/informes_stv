@@ -1,4 +1,54 @@
-<h1 class="mb-4">Base de jugadores</h1>
+﻿<%
+function buildSortLink(field) {
+  const params = [];
+  if (filters && filters.team) params.push(`team=${encodeURIComponent(filters.team)}`);
+  if (filters && filters.search) params.push(`search=${encodeURIComponent(filters.search)}`);
+  const nextDir = (sort === field && dir === 'asc') ? 'desc' : 'asc';
+  params.push(`sort=${field}`);
+  params.push(`dir=${nextDir}`);
+  return `?${params.join('&')}`;
+}
+%>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h1 class="mb-0">Base de jugadores</h1>
+  <div class="d-flex gap-2">
+    <a href="/admin/players/import-stats" class="btn btn-outline-primary btn-sm">
+      Importar estadísticas
+    </a>
+  </div>
+</div>
+
+<form method="GET" class="row g-3 align-items-end mb-3">
+  <div class="col-sm-4 col-md-3">
+    <label for="team" class="form-label">Equipo</label>
+    <select name="team" id="team" class="form-select form-select-sm">
+      <option value="">Todos</option>
+      <% teams && teams.forEach(function(t){ %>
+        <option value="<%= t %>" <%= filters.team === t ? 'selected' : '' %>><%= t %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-sm-5 col-md-4">
+    <label for="search" class="form-label">Buscar jugador</label>
+    <input
+      type="text"
+      id="search"
+      name="search"
+      value="<%= filters.search || '' %>"
+      class="form-control form-control-sm"
+      placeholder="Nombre o apellidos"
+    />
+  </div>
+  <input type="hidden" name="sort" value="<%= sort %>" />
+  <input type="hidden" name="dir" value="<%= dir %>" />
+  <div class="col-sm-3 col-md-2">
+    <button class="btn btn-primary btn-sm w-100" type="submit">Filtrar</button>
+  </div>
+  <div class="col-sm-12 col-md-3 text-md-end">
+    <a href="/admin/players" class="btn btn-link btn-sm">Limpiar filtros</a>
+  </div>
+</form>
 
 <% if (!players || !players.length) { %>
 <p>No hay jugadores registrados.</p>
@@ -15,13 +65,13 @@
           <th>
             <input type="checkbox" id="selectAllPlayers" />
           </th>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Apellidos</th>
-          <th>Equipo</th>
-          <th>Año nacimiento</th>
+          <th><a href="<%= buildSortLink('id') %>">ID</a></th>
+          <th><a href="<%= buildSortLink('first_name') %>">Nombre</a></th>
+          <th><a href="<%= buildSortLink('last_name') %>">Apellidos</a></th>
+          <th><a href="<%= buildSortLink('team') %>">Equipo</a></th>
+          <th><a href="<%= buildSortLink('birth_year') %>">Año nacimiento</a></th>
           <th>Lateralidad</th>
-          <th>Creado</th>
+          <th><a href="<%= buildSortLink('created_at') %>">Creado</a></th>
           <th></th>
         </tr>
       </thead>
@@ -46,6 +96,22 @@
             <%= p.created_at ? new Date(p.created_at).toISOString().slice(0, 10) : '' %>
           </td>
           <td class="text-nowrap d-flex gap-2">
+            <button
+              class="btn btn-sm btn-success generate-report"
+              data-player-id="<%= p.id %>"
+              title="Generar informe"
+            >
+              Generar informe
+            </button>
+            <a
+              href="/admin/players/<%= p.id %>/stats"
+              class="btn btn-sm btn-info text-white <%= p.stats_count ? '' : 'disabled' %>"
+              aria-disabled="<%= p.stats_count ? 'false' : 'true' %>"
+              title="<%= p.stats_count ? 'Ver estadísticas' : 'Sin estadísticas cargadas' %>"
+            >
+              Estadísticas
+            </a>
+            
             <a
               href="/admin/players/<%= p.id %>/edit"
               class="btn btn-sm btn-outline-secondary"
@@ -88,4 +154,5 @@
     });
   })();
 </script>
+<script src="/js/playerReportButton.js"></script>
 

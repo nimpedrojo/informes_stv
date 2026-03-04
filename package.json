@@ -7,7 +7,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "jest --runInBand",
-    "import:players": "node scripts/import_players_from_excel.js"
+    "import:players": "node scripts/import_players_from_excel.js",
+    "import:stats": "node scripts/import_player_stats.js"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +22,10 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.19.0",
     "morgan": "^1.10.1",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^3.18.2",
+    "pdfkit": "^0.13.0",
+    "puppeteer": "^22.4.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

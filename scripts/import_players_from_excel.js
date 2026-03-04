@@ -8,7 +8,7 @@ const { createPlayersTable, insertPlayer } = require('../src/models/playerModel'
 async function main() {
   const excelPath =
     process.env.PLAYERS_EXCEL_PATH ||
-    '/Users/nimpedrojo/Downloads/Deportistas_2025.xlsx';
+    '/Users/PedroLafuenteGómez/Downloads/Deportistas_2025.xlsx';
 
   if (!fs.existsSync(excelPath)) {
     console.error(`No se ha encontrado el fichero Excel en: ${excelPath}`);

@@ -1,0 +1,143 @@
+﻿:root {
+  --primary: #c1121f;
+  --primary-dark: #780000;
+  --text: #1f2933;
+  --muted: #6b7280;
+  --card: #f7f8fa;
+  --border: #e5e7eb;
+  --radius: 10px;
+  --shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  color: var(--text);
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 16mm 14mm;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.card {
+  background: #f5f6f8;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  border: 1px solid #d9dce1;
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 6px 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+h2.section-title {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.logo-wrap img {
+  max-height: 70px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.info-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+.info-label {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 4px 0;
+}
+
+.info-value {
+  margin: 0;
+  font-size: 14px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 12px;
+}
+
+.ratings {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ratings td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ratings td:first-child {
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-title {
+  width: 100%;
+  text-align: left;
+  margin: 0 0 8px 0;
+  color: var(--primary-dark);
+}
+
+.feedback {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.feedback p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+canvas {
+  max-width: 100%;
+}

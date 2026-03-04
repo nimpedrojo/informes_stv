@@ -72,9 +72,28 @@ async function updateUserAccount(id, { name, email, defaultClub, defaultTeam }) 
   return result.affectedRows;
 }
 
-async function getAllUsers() {
+function resolveSort(field) {
+  const map = {
+    name: 'name',
+    email: 'email',
+    role: 'role',
+    created: 'created_at',
+    id: 'id',
+  };
+  return map[field] || 'created_at';
+}
+
+function resolveDir(dir) {
+  return dir && dir.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+}
+
+async function getAllUsers({ sort, dir } = {}) {
+  const sortCol = resolveSort(sort);
+  const sortDir = resolveDir(dir);
   const [rows] = await db.query(
-    'SELECT id, name, email, role, default_club, default_team, created_at FROM users ORDER BY created_at DESC',
+    `SELECT id, name, email, role, default_club, default_team, created_at
+       FROM users
+     ORDER BY ${sortCol} ${sortDir}`,
   );
   return rows;
 }

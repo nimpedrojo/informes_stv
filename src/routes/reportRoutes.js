@@ -5,6 +5,8 @@ const XLSX = require('xlsx');
 const {
   createReport,
   getAllReports,
+  getReportsFiltered,
+  getDistinctReportTeams,
   getAllReportsRaw,
   getReportById,
   updateReport,
@@ -256,9 +258,17 @@ router.post('/new', ensureAuth, async (req, res) => {
 
 // Listado de informes (solo admin)
 router.get('/', ensureAdmin, async (req, res) => {
+  const { team = '', sort = 'created', dir = 'desc' } = req.query;
   try {
-    const reports = await getAllReports();
-    res.render('reports/list', { reports });
+    const reports = await getReportsFiltered({ team, sort, dir });
+    const teams = await getDistinctReportTeams();
+    res.render('reports/list', {
+      reports,
+      filters: { team },
+      sort,
+      dir,
+      teams,
+    });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error al obtener informes:', err);

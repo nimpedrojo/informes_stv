@@ -1,0 +1,9 @@
+<% function buildSortLink(field, filters, sort, dir) {
+  const params = [];
+  if (filters && filters.team) params.push(`team=${encodeURIComponent(filters.team)}`);
+  if (filters && filters.search) params.push(`search=${encodeURIComponent(filters.search)}`);
+  const nextDir = (sort === field && dir === 'asc') ? 'desc' : 'asc';
+  params.push(`sort=${field}`);
+  params.push(`dir=${nextDir}`);
+  return `?${params.join('&')}`;
+} %>

@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Informe de Desarrollo del Jugador</title>
+    <style>
+      <!--STYLE-->
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header card">
+        <div>
+          <p class="eyebrow">Informe de Desarrollo del Jugador</p>
+          <h1 id="player-name">Jugador</h1>
+        </div>
+        <div class="logo-wrap">
+          <img id="club-logo" alt="Club logo" />
+        </div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title">Datos del jugador</h2>
+        <div class="info-grid" id="player-info"></div>
+      </section>
+
+      <section class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Evaluación técnica</h2>
+          <table class="ratings" id="ratings-table"></table>
+        </div>
+        <div class="card chart-card">
+          <h3 class="chart-title">Radar de habilidades</h3>
+          <canvas id="radarChart" width="300" height="300"></canvas>
+        </div>
+      </section>
+
+      <section class="grid-2">
+        <div class="card chart-card">
+          <h2 class="section-title">Estadísticas</h2>
+          <canvas id="statsPie" width="260" height="260"></canvas>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Feedback del entrenador</h2>
+          <div class="feedback">
+            <div>
+              <p class="eyebrow">Fortalezas</p>
+              <p id="strengths"></p>
+            </div>
+            <div>
+              <p class="eyebrow">Aspectos a mejorar</p>
+              <p id="improvements"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      window.reportData = <!--DATA--> ;
+    </script>
+    <script>
+      <!--SCRIPT-->
+    </script>
+  </body>
+</html>

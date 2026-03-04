@@ -47,11 +47,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const reportPdfRoutes = require('./routes/report.routes');
 const userAdminRoutes = require('./routes/userAdminRoutes');
 const playerAdminRoutes = require('./routes/playerAdminRoutes');
 
 app.use('/', authRoutes);
 app.use('/reports', reportRoutes);
+app.use('/reports', reportPdfRoutes);
 app.use('/admin/users', userAdminRoutes);
 app.use('/admin/players', playerAdminRoutes);
 

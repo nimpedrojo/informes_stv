@@ -2,6 +2,7 @@ const app = require('./app');
 const { createUsersTable, ensureAdminUser } = require('./models/userModel');
 const { createReportsTable } = require('./models/reportModel');
 const { createPlayersTable } = require('./models/playerModel');
+const { createPlayerStatsTable } = require('./models/playerStatsModel');
 
 const PORT = process.env.PORT || 3000;
 
@@ -9,6 +10,7 @@ async function init() {
   await createUsersTable();
   await createReportsTable();
   await createPlayersTable();
+  await createPlayerStatsTable();
   await ensureAdminUser();
 }
 

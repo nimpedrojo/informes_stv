@@ -216,3 +216,12 @@ body {
   border-radius: 0.75rem;
   padding: 6px;
 }
+
+/* Ajustes tabla usuarios */
+.role-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  width: 220px;
+}
