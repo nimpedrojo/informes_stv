@@ -643,11 +643,16 @@
         var yearInput = document.querySelector('input[name=\"year\"]');
         var lateralityInput = document.querySelector('input[name=\"laterality\"]');
 
-        if (nameInput && !nameInput.value) nameInput.value = firstName;
-        if (surnameInput && !surnameInput.value) surnameInput.value = lastName;
+        if (nameInput) nameInput.value = firstName;
+        if (surnameInput) surnameInput.value = lastName;
         if (teamInput) teamInput.value = team;
-        if (yearInput && !yearInput.value) yearInput.value = year;
-        if (lateralityInput && !lateralityInput.value) lateralityInput.value = laterality;
+        if (yearInput) {
+          yearInput.value = year;
+          // forzar actualización de opciones de recomendación ligadas al año
+          const evt = new Event('input', { bubbles: true });
+          yearInput.dispatchEvent(evt);
+        }
+        if (lateralityInput) lateralityInput.value = laterality;
       });
     });
   </script>

@@ -282,6 +282,38 @@ describe('Aplicación de informes STV', () => {
     expect(rows[0].default_team).toBe('Admin Equipo');
   });
 
+  test('un admin puede cambiar la contraseña de un usuario', async () => {
+    const admin = await createTestUser({
+      name: 'Admin Change Pwd',
+      role: 'admin',
+    });
+    const user = await createTestUser({
+      name: 'User Change Pwd',
+      role: 'user',
+    });
+
+    const agent = request.agent(app);
+    await agent
+      .post('/login')
+      .send({ email: admin.email, password: 'password123' });
+
+    const resPost = await agent.post(`/admin/users/${user.id}/edit`).send({
+      name: 'User Change Pwd',
+      email: user.email,
+      default_club: '',
+      default_team: '',
+      new_password: 'newpassword123',
+    });
+    expect(resPost.status).toBe(302);
+    expect(resPost.headers.location).toBe('/admin/users');
+
+    const loginRes = await request(app)
+      .post('/login')
+      .send({ email: user.email, password: 'newpassword123' });
+    expect(loginRes.status).toBe(302);
+    expect(loginRes.headers.location).toBe('/dashboard');
+  });
+
   test('un admin puede cambiar el rol de un usuario', async () => {
     const admin = await createTestUser({
       name: 'Admin Role',
