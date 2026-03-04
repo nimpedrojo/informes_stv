@@ -9,6 +9,7 @@ const {
   getPlayerById,
   updatePlayer,
   deletePlayer,
+  getAllPlayers,
 } = require('../models/playerModel');
 const {
   createPlayerStatsTable,
